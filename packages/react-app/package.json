@@ -15,10 +15,11 @@
     ]
   },
   "dependencies": {
-    "@project/contracts": "^1.0.0",
     "@apollo/react-hooks": "^3.1.5",
+    "@connext/vector-modal": "^0.1.47",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.12",
+    "@project/contracts": "^1.0.0",
     "@testing-library/dom": "^6.16.0",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",

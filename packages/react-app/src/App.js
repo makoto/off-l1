@@ -9,6 +9,7 @@ import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
+import { ConnextModal } from "@connext/vector-modal";
 
 async function readOnChainData() {
   // Should replace with the end-user wallet, e.g. Metamask
@@ -40,6 +41,7 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
+  const [showModal, setShowModal] = React.useState(false);
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -48,27 +50,47 @@ function App() {
   }, [loading, error, data]);
 
   return (
-    <div>
-      <Header>
-        <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
-      </Header>
-      <Body>
-        <Image src={logo} alt="react-logo" />
-        <p>
-          Edit <code>packages/react-app/src/App.js</code> and save to reload.
-        </p>
-        {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
-        <Button hidden onClick={() => readOnChainData()}>
-          Read On-Chain Balance
-        </Button>
-        <Link href="https://ethereum.org/developers/#getting-started" style={{ marginTop: "8px" }}>
-          Learn Ethereum
-        </Link>
-        <Link href="https://reactjs.org">Learn React</Link>
-        <Link href="https://thegraph.com/docs/quick-start">Learn The Graph</Link>
-      </Body>
-    </div>
+    <>
+      <button onClick={() => setShowModal(true)}>Hello World</button>
+      <ConnextModal
+        showModal={showModal}
+        onClose={() => setShowModal(false)}
+        onReady={params => console.log('MODAL IS READY =======>', params)}
+        depositAddress={''}
+        withdrawalAddress={''}
+        routerPublicIdentifier="vector7tbbTxQp8ppEQUgPsbGiTrVdapLdU5dH7zTbVuXRf1M4CEBU9Q"
+        depositAssetId={'0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'}
+        depositChainId={5}
+        depositChainProvider="https://goerli.infura.io/v3/"
+        withdrawAssetId={'0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1'}
+        withdrawChainId={80001}
+        withdrawChainProvider="https://rpc-mumbai.matic.today"
+      />
+    </>
   );
+
+  // return (
+  //   <div>
+  //     <Header>
+  //       <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
+  //     </Header>
+  //     <Body>
+  //       <Image src={logo} alt="react-logo" />
+  //       <p>
+  //         Edit <code>packages/react-app/src/App.js</code> and save to reload.
+  //       </p>
+  //       {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
+  //       <Button hidden onClick={() => readOnChainData()}>
+  //         Read On-Chain Balance
+  //       </Button>
+  //       <Link href="https://ethereum.org/developers/#getting-started" style={{ marginTop: "8px" }}>
+  //         Learn Ethereum
+  //       </Link>
+  //       <Link href="https://reactjs.org">Learn React</Link>
+  //       <Link href="https://thegraph.com/docs/quick-start">Learn The Graph</Link>
+  //     </Body>
+  //   </div>
+  // );
 }
 
 export default App;
