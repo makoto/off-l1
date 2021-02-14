@@ -27,6 +27,12 @@ export const Image = styled.img`
   pointer-events: none;
 `;
 
+export const IconImage = styled.img`
+  height: 0.7em;
+  width: 0.7em;
+  pointer-events: none;
+`;
+
 export const Link = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer",

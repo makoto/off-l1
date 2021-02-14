@@ -34,8 +34,10 @@
     "eslint-plugin-flowtype": "^4.6.0",
     "graphql": "^14.7.0",
     "ipfs-http-client": "^45.0.0",
+    "lodash": "^4.17.20",
     "react": "16.14.0",
     "react-dom": "16.14.0",
+    "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "styled-components": "^5.2.0",
     "web3modal": "^1.9.1"
