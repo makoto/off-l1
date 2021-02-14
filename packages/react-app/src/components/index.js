@@ -1,18 +1,19 @@
 import styled from "styled-components";
 
 export const Header = styled.header`
-  background-color: #282c34;
+  background-color: #ffe2d1;
   min-height: 70px;
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
+  padding-left: 2em;
   color: white;
 `;
 
 export const Body = styled.body`
   align-items: center;
-  background-color: #282c34;
+  background-color: #5E4C5A;
   color: white;
   display: flex;
   flex-direction: column;
@@ -37,15 +38,30 @@ export const Link = styled.a.attrs({
   target: "_blank",
   rel: "noopener noreferrer",
 })`
-  color: #61dafb;
+  color: #ffe2d1;
   margin-top: 10px;
 `;
+
+
+export const InternalLink = styled.a.attrs({
+  rel: "noopener noreferrer",
+})`
+  color: #ffe2d1;
+  margin-top: 10px;
+`;
+
+export const LogoLink = styled.a.attrs({
+})`
+  text-decoration: none;
+  font-size:xx-large;
+`;
+
 
 export const Button = styled.button`
   background-color: white;
   border: none;
   border-radius: 8px;
-  color: #282c34;
+  color: #5E4C5A;
   cursor: pointer;
   font-size: 16px;
   text-align: center;

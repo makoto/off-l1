@@ -3,13 +3,21 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 
-import { Body, Button, Header, Image, IconImage } from "./components";
+import { Body, Button, Header, LogoLink } from "./components";
+import Home from "./components/Home";
+import Token from "./components/Token";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
 import { ConnextModal } from "@connext/vector-modal";
+import {
+  BrowserRouter as Router,
+  Switch,
+  Route,
+  Link
+} from "react-router-dom";
 
 async function readOnChainData() {
   // Should replace with the end-user wallet, e.g. Metamask
@@ -38,90 +46,23 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   );
 }
 
-// https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2C%20dai&vs_currencies=usd
-export async function getBNB(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2C%20dai&vs_currencies=usd`)
-  return await result.json()
+function About() {
+  return <h2>About</h2>;
 }
 
-export async function getDai(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=dai&vs_currencies=usd`)
-  return await result.json()
+function Users() {
+  return <h2>Users</h2>;
 }
-
-export async function getMatic(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2C%20dai&vs_currencies=usd`)
-  return await result.json()
-}
-
 
 function App({chainInfos}) {
-  const [ daiPrice, setDaiPrice ] = useState(false);
-  const [ bnbPrice, setBnbPrice ] = useState(false);
-  getDai().then(r => {
-    setDaiPrice(r.dai.usd)
-  })
-  getBNB().then(r => {
-    setBnbPrice(r.binancecoin.usd)
-  })
 
-  const { loading, error, data } = useQuery(TOKEN_DATA, {
-    client:chainInfos[0].client
-  });
-
-  // const { loading:loading1, error:error1, data:data1 } = useQuery(TOKEN_DATA, {
-  //   client:chainInfos[1].client
-  // });
-  const { loading:loading2, error:error2, data:data2 } = useQuery(TOKEN_DATA, {
-    client:chainInfos[2].client
-  });
-
-  console.log('***data', {data,  data2})
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [showModal, setShowModal] = React.useState(false);
-  let combined = []
-  if(data && data2){
-    for (let i = 0; i < data?.tokens?.length; i++) {
-      const d = data?.tokens[i];
-      if(d.symbol.match(/DAI/)){
-        console.log(0, d.symbol)
-      }
-      if(d.symbol.match(/BTC/)){
-        console.log(0, d.symbol)
-      }
-      if(d.symbol.match(/ETH/)){
-        console.log(0, d.symbol)
-      }
-
-      for (let j = 0; j < data2?.tokens?.length; j++) {
-        const d2 = data2?.tokens[j];
-        if(i == 0 && d2.symbol.match(/DAI/)){
-          console.log(2, d2.symbol)
-        }
-        if(i == 0 && d2.symbol.match(/BTC/)){
-          console.log(2, d2.symbol)
-        }
-        if(i == 0 && d2.symbol.match(/ETH/)){
-          console.log(2, d2.symbol)
-        }
-  
-
-        if(d.symbol === d2.symbol){
-          combined.push({
-            symbol:d.symbol,
-            d,
-            d2
-          })
-        }
-      }
-    }  
-  }
-  console.log('***combined', {combined})
-  React.useEffect(() => {
-    if (!loading && !error && data && data.transfers) {
-      console.log({ transfers: data.transfers });
-    }
-  }, [loading, error, data]);
+  // React.useEffect(() => {
+  //   if (!loading && !error && data && data.transfers) {
+  //     console.log({ transfers: data.transfers });
+  //   }
+  // }, [loading, error, data]);
 
   // return (
   //   <>
@@ -144,43 +85,29 @@ function App({chainInfos}) {
   // );
 
   return (
+    <Router>
     <div>
       <Header>
+        <LogoLink href={`/`}>🐰</LogoLink>
         <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
       </Header>
-      <Body>
-        <h1>🐰Off L1</h1>
-        <div>Swap between Uniswap clone exchanges</div>
-        {/* Remove the "hidden" prop and open the JavaScript console in the browser to see what this function does */}
-        <Button hidden onClick={() => readOnChainData()}>
-          Read On-Chain Balance
-        </Button>
-        {(data && data2 && daiPrice && bnbPrice) ? (
-          <table>
-            <tr>
-              <th>Coin</th>
-              <th><IconImage src={'https://pancakeswap.info/favicon.png'} alt="react-logo" /> {chainInfos[0].name}</th>
-              <th><IconImage src={'https://honeyswap.org/images/favicon.svg'} alt="react-logo" /> {chainInfos[2].name}</th>
-              <th><IconImage src={'https://quickswap.exchange/logo_circle.png'} alt="react-logo" /> {chainInfos[1].name}</th>
-            </tr>
-            {combined.map(c => (
-              <tr>
-                <td>{c.symbol}</td>
-                <td>
-                  ${(c.d.derivedETH * bnbPrice).toFixed(2)}
-                </td>
-                <td>
-                  ${(c.d2.derivedETH * daiPrice).toFixed(2)}
-                </td>
-                <td>
-                  ${(c.d2.derivedETH * daiPrice).toFixed(2)}
-                </td>
-              </tr>
-            ))}
-          </table>
-        ) : ('Loading...')}
-      </Body>
+      <Switch>
+        <Route path="/token/:symbol">
+          <Token />
+        </Route>
+        <Route path="/about">
+          <About />
+        </Route>
+        <Route path="/users">
+          <Users />
+        </Route>
+        <Route path="/">
+          <Home chainInfos={chainInfos} />
+        </Route>
+      </Switch>
     </div>
+    </Router>
+
   );
 }
 
