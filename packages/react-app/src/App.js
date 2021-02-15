@@ -53,9 +53,91 @@ function About() {
 function Users() {
   return <h2>Users</h2>;
 }
+export async function getBNB(){
+  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2C%20dai&vs_currencies=usd`)
+  return await result.json()
+}
+// Matic derived price is actually ETH
+export async function getEth(){
+  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`)
+  return await result.json()
+}
+export async function getDai(){
+  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=dai&vs_currencies=usd`)
+  return await result.json()
+}
 
 function App({chainInfos}) {
+  const [ daiPrice, setDaiPrice ] = useState(false);
+  const [ ethPrice, setEthPrice ] = useState(false);
+  const [ bnbPrice, setBnbPrice ] = useState(false);
+  getDai().then(r => {
+    setDaiPrice(r.dai.usd)
+  })
+  getEth().then(r => {
+    setEthPrice(r.ethereum.usd)
+  })
+  getBNB().then(r => {
+    setBnbPrice(r.binancecoin.usd)
+  })
 
+  const { loading, error, data } = useQuery(TOKEN_DATA, {
+    client:chainInfos[0].client
+  });
+
+  const { loading:loading1, error:error1, data:data1 } = useQuery(TOKEN_DATA, {
+    client:chainInfos[1].client
+  });
+  const { loading:loading2, error:error2, data:data2 } = useQuery(TOKEN_DATA, {
+    client:chainInfos[2].client
+  });
+  console.log({
+    data, data1, data2
+  })
+  let combined = []
+  if(data && data2){
+    for (let i = 0; i < data?.tokens?.length; i++) {
+      const d = data?.tokens[i];
+      if(d.symbol.match(/DAI/)){
+        console.log(0, d.symbol)
+      }
+      if(d.symbol.match(/BTC/)){
+        console.log(0, d.symbol)
+      }
+      if(d.symbol.match(/ETH/)){
+        console.log(0, d.symbol)
+      }
+
+      for (let j = 0; j < data2?.tokens?.length; j++) {
+        const d2 = data2?.tokens[j];
+        if(i == 0 && d2.symbol.match(/DAI/)){
+          console.log(2, d2.symbol)
+        }
+        if(i == 0 && d2.symbol.match(/BTC/)){
+          console.log(2, d2.symbol)
+        }
+        if(i == 0 && d2.symbol.match(/ETH/)){
+          console.log(2, d2.symbol)
+        }
+  
+
+        if(d.symbol === d2.symbol){
+          for (let k = 0; k < data1?.tokens?.length; k++) {
+            const d1 = data1?.tokens[k];
+            if(d.symbol === d1.symbol){
+              combined.push({
+                symbol:d.symbol,
+                d,
+                d1,
+                d2
+              })    
+            }
+          }
+        }
+      }
+    }
+  }
+  console.log({combined})
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [showModal, setShowModal] = React.useState(false);
   // React.useEffect(() => {
@@ -93,7 +175,13 @@ function App({chainInfos}) {
       </Header>
       <Switch>
         <Route path="/token/:symbol">
-          <Token />
+          <Token
+            chainInfos={chainInfos}
+            combined={combined}
+            bnbPrice={bnbPrice}
+            ethPrice={ethPrice}
+            daiPrice={daiPrice}
+          />
         </Route>
         <Route path="/about">
           <About />
@@ -102,7 +190,13 @@ function App({chainInfos}) {
           <Users />
         </Route>
         <Route path="/">
-          <Home chainInfos={chainInfos} />
+          <Home
+            chainInfos={chainInfos}
+            combined={combined}
+            bnbPrice={bnbPrice}
+            ethPrice={ethPrice}
+            daiPrice={daiPrice}
+          />
         </Route>
       </Switch>
     </div>

@@ -13,7 +13,7 @@ const bscClient = new ApolloClient({
 });
 
 const maticClient = new ApolloClient({
-  uri: "https://graph.ginete.in/subgraphs/name/matic/quickswap"
+  uri: "https://graph01.ginete.in/subgraphs/name/matic/quickswap"
 });
 
 const xdaiClient = new ApolloClient({
