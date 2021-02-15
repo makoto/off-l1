@@ -24,7 +24,12 @@ function Token({
               let diff = ((ccValue - cValue) / ((cValue + ccValue) / 2)) * 100
               if(diff > 0){
                 return(
-                  <li>{c.name} -> {cc.name} = ${cValue.toFixed(2)} -> ${ccValue.toFixed(2)}({diff.toFixed(2)} %)</li>
+                  <li>
+                    <IconImage src={c.exchangeIcon} />${cValue.toFixed(2)}
+                    ->
+                    <IconImage src={cc.exchangeIcon} />${ccValue.toFixed(2)}
+                    ({diff.toFixed(2)} %)
+                  </li>
                 )  
               }
             }

@@ -31,6 +31,8 @@ export const Image = styled.img`
 export const IconImage = styled.img`
   height: 0.7em;
   width: 0.7em;
+  margin-left:0.3em;
+  margin-right:0.3em;
   pointer-events: none;
 `;
 

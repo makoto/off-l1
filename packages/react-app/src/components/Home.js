@@ -12,9 +12,9 @@ function Home({chainInfos, combined}) {
           <table>
           <tr>
             <th>Coin</th>
-            <th><IconImage src={'https://pancakeswap.info/favicon.png'} alt="react-logo" /> on {chainInfos[0].name}</th>
-            <th><IconImage src={'https://quickswap.exchange/logo_circle.png'} alt="react-logo" /> on {chainInfos[1].name}</th>
-            <th><IconImage src={'https://honeyswap.org/images/favicon.svg'} alt="react-logo" /> on {chainInfos[2].name}</th>
+            <th><IconImage src={chainInfos[0].exchangeIcon} /> on {chainInfos[0].name}</th>
+            <th><IconImage src={chainInfos[1].exchangeIcon} /> on {chainInfos[1].name}</th>
+            <th><IconImage src={chainInfos[2].exchangeIcon} /> on {chainInfos[2].name}</th>
           </tr>
           {combined.map(c => (
               <tr>
