@@ -2,6 +2,12 @@ import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../components";
 import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import { chain } from "lodash";
+
+export const SwapLinkContainer = styled.span`
+  margin-right: 1em;
+`;
 
 function Token({
   chainInfos, combined
@@ -25,10 +31,17 @@ function Token({
               if(diff > 0){
                 return(
                   <li>
+                    <SwapLinkContainer>
                     <IconImage src={c.exchangeIcon} />${cValue.toFixed(2)}
-                    ->
+                      ->
                     <IconImage src={cc.exchangeIcon} />${ccValue.toFixed(2)}
-                    ({diff.toFixed(2)} %)
+                      ({diff.toFixed(2)} %)
+                    </SwapLinkContainer>
+                    <InternalLink
+                      href={`/exchanges/${c.exchangeName}-${cc.exchangeName}/token/${symbol}`}
+                    >
+                      Swap
+                    </InternalLink>
                   </li>
                 )  
               }

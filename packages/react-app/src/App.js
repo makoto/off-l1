@@ -6,6 +6,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, LogoLink } from "./components";
 import Home from "./components/Home";
 import Token from "./components/Token";
+import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
@@ -189,6 +190,12 @@ function App({chainInfos}) {
       <Switch>
         <Route path="/token/:symbol">
           <Token
+            chainInfos={chainInfos}
+            combined={combined}
+          />
+        </Route>
+        <Route path="/exchanges/:from-:to/token/:symbol">
+          <Swap
             chainInfos={chainInfos}
             combined={combined}
           />
