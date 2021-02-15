@@ -17,3 +17,8 @@ a:visited
   text-decoration: none;
   decoration: none; 
 }
+
+a{
+  color: #ffe2d1;
+  margin-top: 10px;  
+}

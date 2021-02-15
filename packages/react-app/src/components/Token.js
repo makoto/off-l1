@@ -38,7 +38,7 @@ function Token({
                       ({diff.toFixed(2)} %)
                     </SwapLinkContainer>
                     <InternalLink
-                      href={`/exchanges/${c.exchangeName}-${cc.exchangeName}/token/${symbol}`}
+                      to={`/exchanges/${c.exchangeName}-${cc.exchangeName}/token/${symbol}`}
                     >
                       Swap
                     </InternalLink>

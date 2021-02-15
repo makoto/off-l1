@@ -14,7 +14,7 @@ import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
 import { ConnextModal } from "@connext/vector-modal";
 import {
-  BrowserRouter as Router,
+  HashRouter as Router,
   Switch,
   Route,
   Link
@@ -184,7 +184,7 @@ function App({chainInfos}) {
     <Router>
     <div>
       <Header>
-        <LogoLink href={`/`}>🐰</LogoLink>
+        <LogoLink to={`/`}>🐰</LogoLink>
         <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
       </Header>
       <Switch>

@@ -20,7 +20,7 @@ function Home({chainInfos, combined}) {
               <tr>
               <td>
                 <InternalLink
-                  href={`/token/${c.symbol}`}
+                  to={`/token/${c.symbol}`}
                 >{c.symbol}</InternalLink>                
               </td>
               <td>
