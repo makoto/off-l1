@@ -3,7 +3,7 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 
-import { Body, Button, Header, LogoLink } from "./components";
+import { Body, Button, Header } from "./components";
 import Home from "./components/Home";
 import Token from "./components/Token";
 import Swap from "./components/Swap";
@@ -184,7 +184,10 @@ function App({chainInfos}) {
     <Router>
     <div>
       <Header>
-        <LogoLink to={`/`}>🐰</LogoLink>
+        <Link
+          to={`/`}
+          style={{ textDecoration: 'none', fontSize:'xx-large' }}
+        >🐰</Link>
         <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
       </Header>
       <Switch>

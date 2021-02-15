@@ -55,13 +55,6 @@ export const InternalLink = Link
 //   margin-top: 10px;
 // `;
 
-export const LogoLink = styled.a.attrs({
-})`
-  text-decoration: none;
-  font-size:xx-large;
-`;
-
-
 export const Button = styled.button`
   background-color: white;
   border: none;
