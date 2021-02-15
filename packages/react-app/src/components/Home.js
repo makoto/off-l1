@@ -7,7 +7,7 @@ function Home({chainInfos, combined}) {
     return (
       <Body>
       <h1>🐰Off L1</h1>
-      <div>Swap between Uniswap clones</div>
+      <div>Swap between Uniswap clones across chains</div>
       {(combined?.length > 0) ? (
           <table>
           <tr>
