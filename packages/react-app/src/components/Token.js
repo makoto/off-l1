@@ -4,59 +4,34 @@ import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../c
 import { useParams } from "react-router-dom";
 
 function Token({
-  chainInfos, combined, bnbPrice, ethPrice, daiPrice
+  chainInfos, combined
 }) {
-  
   let { symbol } = useParams();
-  let c, bnbValue, ethValue, daiValue
-  console.log({
-    chainInfos,
-    bnbPrice,
-    daiPrice,
-  })
+  let tokenData
   if(combined.length > 0){
-    c = combined.filter(c => c.symbol === symbol)[0]
-    bnbValue = c.d.derivedETH * bnbPrice
-    ethValue = c.d1.derivedETH * ethPrice
-    daiValue = c.d2.derivedETH * daiPrice
+    tokenData = combined.filter(c => c.symbol === symbol)[0]
   }
   return (
     <Body>
       <h1>{symbol}</h1>
+      <ul>
       {combined.length === 0 ? (<>Loading...</>) : (
-        <ul>
-          <li>
-            <h2>BNB-xDAI ${bnbValue.toFixed(2)} - ${daiValue.toFixed(2)} (${(daiValue - bnbValue).toFixed(2)})</h2>
-            <ul>
-              <li>
-                Switch Network to BNB
-              </li>
-              <li>
-                2: Approve USDC 
-              </li>
-              <li>
-                3: Swap from USDC to ${symbol}
-              </li>
-              <li>
-                4: Transfer ${symbol} to xDAI
-              </li>
-              <li>
-                5: Switch Network to xDAI
-              </li>
-              <li>
-                6: Swap ${symbol} to USDC
-              </li>
-            </ul>
-          </li>
-          <li>
-            BNB-Matic: 
-          </li>
-          <li>
-            xDai-Matic:
-          </li>
-        </ul>
+        chainInfos.map((c, i) => {
+          return chainInfos.map((cc, ii) => {
+            if(c.name !== cc.name){
+              let cValue = tokenData.data[i].derivedETH * c.unitPrice
+              let ccValue = tokenData.data[ii].derivedETH * cc.unitPrice
+              let diff = ((ccValue - cValue) / ((cValue + ccValue) / 2)) * 100
+              if(diff > 0){
+                return(
+                  <li>{c.name} -> {cc.name} = ${cValue.toFixed(2)} -> ${ccValue.toFixed(2)}({diff.toFixed(2)} %)</li>
+                )  
+              }
+            }
+          })
+        })
       )}
-
+      </ul>
     </Body>
   )
 }

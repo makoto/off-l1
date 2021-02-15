@@ -68,18 +68,30 @@ export async function getDai(){
 }
 
 function App({chainInfos}) {
-  const [ daiPrice, setDaiPrice ] = useState(false);
-  const [ ethPrice, setEthPrice ] = useState(false);
   const [ bnbPrice, setBnbPrice ] = useState(false);
-  getDai().then(r => {
-    setDaiPrice(r.dai.usd)
+  const [ ethPrice, setEthPrice ] = useState(false);
+  const [ daiPrice, setDaiPrice ] = useState(false);
+
+  getBNB().then(r => {
+    setBnbPrice(r.binancecoin.usd)
+    chainInfos[0].unitPrice = r.binancecoin.usd
   })
   getEth().then(r => {
     setEthPrice(r.ethereum.usd)
+    chainInfos[1].unitPrice = r.ethereum.usd
   })
-  getBNB().then(r => {
-    setBnbPrice(r.binancecoin.usd)
+  getDai().then(r => {
+    setDaiPrice(r.dai.usd)
+    chainInfos[2].unitPrice = r.dai.usd
   })
+
+  if(chainInfos.length === 3){
+    console.log(
+      chainInfos[0].name,bnbPrice,
+      chainInfos[1].name,ethPrice,
+      chainInfos[2].name,daiPrice
+    )
+  }
 
   const { loading, error, data } = useQuery(TOKEN_DATA, {
     client:chainInfos[0].client
@@ -127,6 +139,7 @@ function App({chainInfos}) {
             if(d.symbol === d1.symbol){
               combined.push({
                 symbol:d.symbol,
+                data:[d, d1, d2],
                 d,
                 d1,
                 d2
@@ -178,9 +191,6 @@ function App({chainInfos}) {
           <Token
             chainInfos={chainInfos}
             combined={combined}
-            bnbPrice={bnbPrice}
-            ethPrice={ethPrice}
-            daiPrice={daiPrice}
           />
         </Route>
         <Route path="/about">
@@ -193,9 +203,6 @@ function App({chainInfos}) {
           <Home
             chainInfos={chainInfos}
             combined={combined}
-            bnbPrice={bnbPrice}
-            ethPrice={ethPrice}
-            daiPrice={daiPrice}
           />
         </Route>
       </Switch>
