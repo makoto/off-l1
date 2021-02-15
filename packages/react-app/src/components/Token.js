@@ -33,7 +33,7 @@ function Token({
                   <li>
                     <SwapLinkContainer>
                     <IconImage src={c.exchangeIcon} />${cValue.toFixed(2)}
-                      ->
+                    &nbsp;  ->
                     <IconImage src={cc.exchangeIcon} />${ccValue.toFixed(2)}
                       ({diff.toFixed(2)} %)
                     </SwapLinkContainer>
