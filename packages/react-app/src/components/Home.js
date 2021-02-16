@@ -4,6 +4,17 @@ import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../components";
 
 function Home({chainInfos, combined}) {
+    const r = combined.map(c => {
+      return chainInfos.map((chain, i) => {
+        if(c.data[i].symbol !== 'DAI'){
+          return({
+            network:chain.name,
+            symbol:c.data[i].symbol,
+            address:c.data[i].id
+          })
+        }
+      })
+    })
     return (
       <Body>
       <h1>🐰Off L1</h1>
@@ -12,9 +23,9 @@ function Home({chainInfos, combined}) {
           <table>
           <tr>
             <th>Coin</th>
-            <th><IconImage src={chainInfos[0].exchangeIcon} /> on {chainInfos[0].name}</th>
-            <th><IconImage src={chainInfos[1].exchangeIcon} /> on {chainInfos[1].name}</th>
-            <th><IconImage src={chainInfos[2].exchangeIcon} /> on {chainInfos[2].name}</th>
+            {chainInfos.map(c => {
+              return(<th><IconImage src={c.exchangeIcon} /> on {c.name}</th>)
+            })}
           </tr>
           {combined.map(c => (
               <tr>
@@ -23,15 +34,24 @@ function Home({chainInfos, combined}) {
                   to={`/token/${c.symbol}`}
                 >{c.symbol}</InternalLink>                
               </td>
-              <td>
-                ${(c.data[0].derivedETH * chainInfos[0].unitPrice).toFixed(2)}
-              </td>
-              <td>
-                ${(c.data[1].derivedETH * chainInfos[1].unitPrice).toFixed(2)}
-              </td>
-              <td>
-                ${(c.data[2].derivedETH * chainInfos[2].unitPrice).toFixed(2)}
-              </td>
+              {chainInfos.map((_, i) => {
+                return(
+                  <td>
+                    <ul>
+                      <li>
+                        {c.data[i].symbol}
+                      </li>
+                      <li>
+                        {c.data[i].id}
+                      </li>
+
+                      <li>
+                        ${(c.data[i].derivedETH * chainInfos[i].unitPrice).toFixed(2)}
+                      </li>
+                    </ul>
+                  </td>
+                )
+              })}
               </tr>
           ))}
           </table>
