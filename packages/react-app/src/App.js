@@ -3,12 +3,13 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
 
-import { Body, Button, Header } from "./components";
+import { Body, Button, Header, NetworkContainer } from "./components";
 import Home from "./components/Home";
 import Token from "./components/Token";
 import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
+import { getBalance } from "./utils"
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
@@ -17,7 +18,7 @@ import {
   HashRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
 } from "react-router-dom";
 
 async function readOnChainData() {
@@ -72,7 +73,7 @@ function App({chainInfos}) {
   const [ bnbPrice, setBnbPrice ] = useState(false);
   const [ ethPrice, setEthPrice ] = useState(false);
   const [ daiPrice, setDaiPrice ] = useState(false);
-
+  const [ account, setAccount ] = useState(false);
   getBNB().then(r => {
     setBnbPrice(r.binancecoin.usd)
     chainInfos[0].unitPrice = r.binancecoin.usd
@@ -180,6 +181,25 @@ function App({chainInfos}) {
   //   </>
   // );
 
+  const chainId = provider?._network?.chainId
+  if(provider?._network?.chainId){
+    window.provider = provider
+  }
+  let currentChain
+  if(chainId){
+    currentChain = chainInfos.filter(c => c.chainId )[0]
+  }
+  if(provider?.getSigner){
+    let signer = provider.getSigner()
+    provider.listAccounts().then(a => {
+      setAccount(a[0])
+      if(currentChain){
+        getBalance(currentChain.rpcUrl, a[0]).then(b => {
+          console.log('***b', b.toNumber())
+        })    
+      }
+    })
+  }
   return (
     <Router>
     <div>
@@ -188,7 +208,14 @@ function App({chainInfos}) {
           to={`/`}
           style={{ textDecoration: 'none', fontSize:'xx-large' }}
         >🐰</Link>
-        <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
+        <NetworkContainer>
+          {currentChain && (
+            <div>
+              Connected to { currentChain.name } as { account.slice(0,5) }...
+            </div>
+          )}
+          <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
+        </NetworkContainer>
       </Header>
       <Switch>
         <Route path="/token/:symbol">

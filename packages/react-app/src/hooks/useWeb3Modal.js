@@ -5,7 +5,7 @@ import WalletConnectProvider from "@walletconnect/web3-provider";
 
 // Enter a valid infura key here to avoid being rate limited
 // You can get a key for free at https://infura.io/register
-const INFURA_ID = "INVALID_INFURA_KEY";
+const INFURA_ID = "10c3a0fa44b94deba2a896658844a49c";
 
 const NETWORK_NAME = "mainnet";
 
@@ -25,13 +25,20 @@ function useWeb3Modal(config = {}) {
         options: {
           infuraId,
         },
-      },
+      }
     },
   });
 
   // Open wallet selection modal.
   const loadWeb3Modal = useCallback(async () => {
-    const newProvider = await web3Modal.connect();
+    console.log('***loadWeb3Modal1')
+    let newProvider
+    try{
+      newProvider = await web3Modal.connect();
+    }catch(e){
+      console.log('***loadWeb3Modal2', {e})
+    }
+    console.log('***loadWeb3Modal3')
     setProvider(new Web3Provider(newProvider));
   }, [web3Modal]);
 
@@ -49,8 +56,8 @@ function useWeb3Modal(config = {}) {
       loadWeb3Modal();
       setAutoLoaded(true);
     }
-  }, [autoLoad, autoLoaded, loadWeb3Modal, setAutoLoaded, web3Modal.cachedProvider]);
-
+  // }, [autoLoad, autoLoaded, loadWeb3Modal, setAutoLoaded, web3Modal.cachedProvider]);
+  }, []);
   return [provider, loadWeb3Modal, logoutOfWeb3Modal];
 }
 

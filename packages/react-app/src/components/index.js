@@ -5,13 +5,14 @@ import {
 
 export const Header = styled.header`
   background-color: #ffe2d1;
+  color: black;
   min-height: 70px;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
   padding-left: 2em;
-  color: white;
+  color: #5E4C59;
 `;
 
 export const Body = styled.body`
@@ -72,3 +73,9 @@ export const Button = styled.button`
     outline: none;
   }
 `;
+
+export const NetworkContainer = styled.span`
+  display: flex;
+  vertical-align: center;
+  align-items: center;
+`
