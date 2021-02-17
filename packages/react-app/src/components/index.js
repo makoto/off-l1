@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import {
-  Link
+  Link as RouterLink
 } from "react-router-dom";
 
 export const Header = styled.header`
@@ -40,21 +40,15 @@ export const IconImage = styled.img`
   pointer-events: none;
 `;
 
-// export const Link = styled.a.attrs({
-//   target: "_blank",
-//   rel: "noopener noreferrer",
-// })`
-//   color: #ffe2d1;
-//   margin-top: 10px;
-// `;
+export const Link = styled.a.attrs({
+  target: "_blank",
+  rel: "noopener noreferrer",
+})`
+  color: #ffe2d1;
+  margin-top: 10px;
+`;
 
-export const InternalLink = Link
-// export const InternalLink = styled.a.attrs({
-//   rel: "noopener noreferrer",
-// })`
-//   color: #ffe2d1;
-//   margin-top: 10px;
-// `;
+export const InternalLink = RouterLink
 
 export const Button = styled.button`
   background-color: white;
@@ -78,4 +72,9 @@ export const NetworkContainer = styled.span`
   display: flex;
   vertical-align: center;
   align-items: center;
+`
+
+export const Input = styled.input`
+ padding: 1em;
+ margin: 1em;
 `

@@ -9,7 +9,7 @@ import Token from "./components/Token";
 import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
-import { getBalance } from "./utils"
+import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
@@ -21,17 +21,6 @@ import {
   Link,
 } from "react-router-dom";
 import { ethers } from "ethers";
-
-async function readOnChainData() {
-  // Should replace with the end-user wallet, e.g. Metamask
-  const defaultProvider = getDefaultProvider();
-  // Create an instance of an ethers.js Contract
-  // Read more about ethers.js on https://docs.ethers.io/v5/api/contract/contract/
-  const ceaErc20 = new Contract(addresses.ceaErc20, abis.erc20, defaultProvider);
-  // A pre-defined address that owns some CEAERC20 tokens
-  const tokenBalance = await ceaErc20.balanceOf("0x3f8CB69d9c0ED01923F11c829BaE4D9a4CB6c82C");
-  console.log({ tokenBalance: tokenBalance.toString() });
-}
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   return (
@@ -55,19 +44,6 @@ function About() {
 
 function Users() {
   return <h2>Users</h2>;
-}
-export async function getBNB(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=binancecoin%2C%20dai&vs_currencies=usd`)
-  return await result.json()
-}
-// Matic derived price is actually ETH
-export async function getEth(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd`)
-  return await result.json()
-}
-export async function getDai(){
-  const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=dai&vs_currencies=usd`)
-  return await result.json()
 }
 
 function App({chainInfos}) {
@@ -114,6 +90,7 @@ function App({chainInfos}) {
   if(data && data2){
     for (let i = 0; i < data?.tokens?.length; i++) {
       const d = data?.tokens[i];
+      d.exchangeName = chainInfos[0].exchangeName
       if(d.symbol.match(/DAI/)){
         console.log(0, d.symbol)
       }
@@ -126,6 +103,7 @@ function App({chainInfos}) {
 
       for (let j = 0; j < data2?.tokens?.length; j++) {
         const d2 = data2?.tokens[j];
+        d2.exchangeName = chainInfos[2].exchangeName
         if(i == 0 && d2.symbol.match(/DAI/)){
           console.log(2, d2.symbol)
         }
@@ -136,17 +114,14 @@ function App({chainInfos}) {
           console.log(2, d2.symbol)
         }
   
-
         if(d.symbol === d2.symbol){
           for (let k = 0; k < data1?.tokens?.length; k++) {
             const d1 = data1?.tokens[k];
+            d1.exchangeName = chainInfos[1].exchangeName
             if(d.symbol === d1.symbol){
               combined.push({
                 symbol:d.symbol,
-                data:[d, d1, d2],
-                d,
-                d1,
-                d2
+                data:[d, d1, d2]
               })    
             }
           }
@@ -233,7 +208,9 @@ function App({chainInfos}) {
         <Route path="/exchanges/:from-:to/token/:symbol">
           <Swap
             chainInfos={chainInfos}
+            currentChain={currentChain}
             combined={combined}
+            account={account}
           />
         </Route>
         <Route path="/about">

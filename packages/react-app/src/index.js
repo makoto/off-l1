@@ -29,6 +29,7 @@ const chainInfos = [{
   exchangeName:'Pancake',
   exchangeIcon:'https://pancakeswap.info/favicon.png',
   explorerUrl:'https://bscscan.com',
+  exchangeRouterAddress:'',
   rpcUrl: 'https://bsc-dataseed1.defibit.io'
 },{
   chainId:137,
@@ -38,6 +39,7 @@ const chainInfos = [{
   tokenAddress:'0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
   exchangeName:'Quick',
   exchangeIcon:'https://quickswap.exchange/logo_circle.png',
+  exchangeRouterAddress:'0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
   explorerUrl:'https://explorer-mainnet.maticvigil.com',
   rpcUrl: 'https://rpc-mainnet.matic.network'
 },{
@@ -48,6 +50,7 @@ const chainInfos = [{
   tokenAddress:'0x6b175474e89094c44da98b954eedeac495271d0f',
   exchangeName:'Honey',
   exchangeIcon:'https://honeyswap.org/images/favicon.svg',
+  exchangeRouterAddress:'',
   explorerUrl:'https://blockscout.com/poa/xdai',
   rpcUrl: 'https://rpc.xdaichain.com'
 }]
