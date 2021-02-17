@@ -32,23 +32,12 @@ function Home({chainInfos, combined}) {
               <td>
                 <InternalLink
                   to={`/token/${c.symbol}`}
-                >{c.symbol}</InternalLink>                
+                >{c.symbol}</InternalLink>
               </td>
               {chainInfos.map((_, i) => {
                 return(
                   <td>
-                    <ul>
-                      <li>
-                        {c.data[i].symbol}
-                      </li>
-                      <li>
-                        {c.data[i].id}
-                      </li>
-
-                      <li>
-                        ${(c.data[i].derivedETH * chainInfos[i].unitPrice).toFixed(2)}
-                      </li>
-                    </ul>
+                    ${(c.data[i].derivedETH * chainInfos[i].unitPrice).toFixed(2)}
                   </td>
                 )
               })}
