@@ -20,6 +20,7 @@ import {
   Route,
   Link,
 } from "react-router-dom";
+import { ethers } from "ethers";
 
 async function readOnChainData() {
   // Should replace with the end-user wallet, e.g. Metamask
@@ -74,6 +75,7 @@ function App({chainInfos}) {
   const [ ethPrice, setEthPrice ] = useState(false);
   const [ daiPrice, setDaiPrice ] = useState(false);
   const [ account, setAccount ] = useState(false);
+  const [ balance, setBalance ] = useState(false);
   getBNB().then(r => {
     setBnbPrice(r.binancecoin.usd)
     chainInfos[0].unitPrice = r.binancecoin.usd
@@ -185,20 +187,24 @@ function App({chainInfos}) {
   if(provider?._network?.chainId){
     window.provider = provider
   }
-  let currentChain
+  let currentChain, balanceToDisplay
   if(chainId){
-    currentChain = chainInfos.filter(c => c.chainId )[0]
+    currentChain = chainInfos.filter(c => c.chainId === chainId )[0]
   }
+  window.ethers = ethers
   if(provider?.getSigner){
     let signer = provider.getSigner()
     provider.listAccounts().then(a => {
       setAccount(a[0])
       if(currentChain){
         getBalance(currentChain.rpcUrl, a[0]).then(b => {
-          console.log('***b', b.toNumber())
+          setBalance(ethers.utils.formatEther(b))
         })    
       }
     })
+  }
+  if(balance){
+    balanceToDisplay = parseFloat(balance).toFixed(2)
   }
   return (
     <Router>
@@ -211,7 +217,7 @@ function App({chainInfos}) {
         <NetworkContainer>
           {currentChain && (
             <div>
-              Connected to { currentChain.name } as { account.slice(0,5) }...
+              Connected to { currentChain.name } as { account.slice(0,5) }... ({balanceToDisplay} ${currentChain.tokenSymbol})
             </div>
           )}
           <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
