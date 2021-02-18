@@ -25,14 +25,16 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
   const fromExchange = chainInfos.filter((c) => c.exchangeName === from)[0];
   const toExchange = chainInfos.filter((c) => c.exchangeName === to)[0];
 
-  let fromTokenData, toTokenData, fromToken, toToken, number;
+  let fromTokenData, toTokenData, fromToken, fromTokenPair, toToken, toTokenPair, number;
   const fromSymbol = "USDC";
   if (combined.length > 0) {
     fromTokenData = combined.filter((c) => c.symbol === fromSymbol)[0];
     toTokenData = combined.filter((c) => c.symbol === symbol)[0];
     console.log({ fromTokenData });
     fromToken = fromTokenData.data?.filter((d) => d?.exchangeName === from)[0];
+    fromTokenPair = toTokenData.data?.filter((d) => d?.exchangeName === from)[0];
     toToken = toTokenData.data?.filter((d) => d?.exchangeName === to)[0];
+    toTokenPair = fromTokenData.data?.filter((d) => d?.exchangeName === to)[0];
   }
 
   if (fromExchange && fromToken && account) {
@@ -98,7 +100,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
                   );
                   setAmount(number)
                   if (number > 0) {
-                    getQuote(fromExchange, toExchange, fromToken, toToken, number).then(c => {
+                    getQuote(fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair, number).then(c => {
                       console.log('***getQuote3')
                       setQuote(c)
                     })
@@ -108,9 +110,9 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
               {
                 quote && (
                   <>
-                    {displayNumber(quote[0].formatted)} $USDC is {displayNumber(quote[1].formatted)} $USDT on Matic <br/>
-                    {displayNumber(quote[2].formatted)} $USDT is {displayNumber(quote[3].formatted)} $USDC on xDai <br/>
-                    (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} $USDC)
+                    {displayNumber(quote[0].formatted)} ${fromSymbol} is {displayNumber(quote[1].formatted)} ${symbol} on {fromExchange.name} <br/>
+                    {displayNumber(quote[2].formatted)} ${symbol} is {displayNumber(quote[3].formatted)} ${fromSymbol} on {toExchange.name} <br/>
+                    (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} ${fromSymbol})
                     <Button
                       onClick={(e) => {
                         // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
