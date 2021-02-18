@@ -52,23 +52,27 @@ function getRouter(exchange){
   return new Contract(exchange.exchangeRouterAddress, abis.router, provider);
 }
 
-export async function getQuote(fromExchange, toExchange, fromToken, toToken, amount){
+export async function getQuote(
+  fromExchange,
+  toExchange,
+  fromToken,
+  fromTokenPair,
+  toToken,
+  toTokenPair,
+  amount
+){
   console.log('***getQuote0')
   const fromRouter = getRouter(fromExchange)
   const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
-  // TODO: Refactor to extrac dynamically
-  const MATIC_USDT = '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
-  const XDAI_USDC = '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83'
-
-  const baseQuotes = await fromRouter.getAmountsOut(rawAmount, [fromToken.id, MATIC_USDT])
+  const baseQuotes = await fromRouter.getAmountsOut(rawAmount, [fromToken.id, fromTokenPair.id])
 
   const toRouter = getRouter(toExchange)
-  console.log('***getQuote1.1', 
+  console.log('***getQuote1.1',
     baseQuotes[1]
   )
 
-  const reverseQuotes = await toRouter.getAmountsOut(baseQuotes[1], [toToken.id, XDAI_USDC])
-
+  const reverseQuotes = await toRouter.getAmountsOut(baseQuotes[1], [toToken.id, toTokenPair.id])
+  // debugger
   return [
     {
       raw:baseQuotes[0],
@@ -77,7 +81,7 @@ export async function getQuote(fromExchange, toExchange, fromToken, toToken, amo
     },
     {
       raw:baseQuotes[1],
-      formatted:ethers.utils.formatUnits(baseQuotes[1], fromToken.decimals),
+      formatted:ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals),
       decimals:toToken.decimals
     },
     {
@@ -87,7 +91,7 @@ export async function getQuote(fromExchange, toExchange, fromToken, toToken, amo
     },
     {
       raw:reverseQuotes[1],
-      formatted:ethers.utils.formatUnits(reverseQuotes[1], toToken.decimals),
+      formatted:ethers.utils.formatUnits(reverseQuotes[1], toTokenPair.decimals),
       decimals:toToken.decimals
     }
   ]
