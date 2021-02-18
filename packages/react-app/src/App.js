@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
@@ -21,6 +21,7 @@ import {
   Link,
 } from "react-router-dom";
 import { ethers } from "ethers";
+import { initNode } from "./connext";
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
   return (
@@ -52,6 +53,14 @@ function App({chainInfos}) {
   const [ daiPrice, setDaiPrice ] = useState(false);
   const [ account, setAccount ] = useState(false);
   const [ balance, setBalance ] = useState(false);
+  const [node, setNode] = useState(false);
+  useEffect(() => {
+    const init = async () => {
+      const _node = await initNode();
+      setNode(_node);
+    };
+    init();
+  }, []);
   getBNB().then(r => {
     setBnbPrice(r.binancecoin.usd)
     chainInfos[0].unitPrice = r.binancecoin.usd

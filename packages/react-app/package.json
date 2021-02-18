@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
-    "@connext/vector-modal": "^0.1.47",
+    "@connext/vector-browser-node": "^0.1.15",
+    "@connext/vector-types": "^0.1.15",
+    "@connext/vector-utils": "^0.1.15",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.12",
     "@project/contracts": "^1.0.0",
@@ -51,6 +53,6 @@
     "ipfs": "yarn build && node scripts/ipfs.js",
     "start": "react-scripts start",
     "test": "react-scripts test",
-     "deploy:dev": "yarn build && surge build offl1.surge.sh"
+    "deploy:dev": "yarn build && surge build offl1.surge.sh"
   }
 }
