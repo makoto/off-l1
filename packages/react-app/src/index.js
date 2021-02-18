@@ -30,7 +30,7 @@ const chainInfos = [{
   exchangeName:'Pancake',
   exchangeIcon:'https://pancakeswap.info/favicon.png',
   explorerUrl:'https://bscscan.com',
-  exchangeRouterAddress:'',
+  exchangeRouterAddress:'0x05ff2b0db69458a0750badebc4f9e13add608c7f',
   rpcUrl: 'https://bsc-dataseed1.defibit.io'
 },{
   chainId:137,
