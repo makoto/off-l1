@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, IconImage, Link, InternalLink, Input } from "../components";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getTokenBalance, geQuote } from "../utils"
+import { getTokenBalance, getQuote, displayNumber } from "../utils"
 import { ethers } from "ethers";
 import { getChannelsForChains, initNode, swap } from '../connext'
 
@@ -12,12 +12,18 @@ export const SwapLinkContainer = styled.span`
 `;
 
 function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
-  const { from, to, symbol } = useParams();
-  const fromExchange = chainInfos.filter((c) => c.exchangeName === from)[0];
-  const toExchange = chainInfos.filter((c) => c.exchangeName === to)[0];
   const [fromTokenBalance, setFromTokenBalance] = useState(false);
   const [fromTokenAllowance, setFromTokenAllowance] = useState(false);
   const [toTokenBalance, setToTokenBalance] = useState(false);
+  const [amount, setAmount] = useState(false);
+  const [quote, setQuote] = useState(false);
+  const { from, to, symbol } = useParams();
+  if(chainInfos && chainInfos.length > 0){
+  }else{
+    return('')
+  }
+  const fromExchange = chainInfos.filter((c) => c.exchangeName === from)[0];
+  const toExchange = chainInfos.filter((c) => c.exchangeName === to)[0];
 
   let fromTokenData, toTokenData, fromToken, toToken, number;
   const fromSymbol = "USDC";
@@ -60,10 +66,10 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
   return (
     <Body>
       <h3>
-        $USDC x ${symbol}
-        <IconImage src={fromExchange.exchangeIcon} />
+      <IconImage src={fromExchange.exchangeIcon} /> $USDC x ${symbol}
+      <IconImage src={fromExchange.chainIcon} />
         ->
-        <IconImage src={toExchange.exchangeIcon} />${symbol} x $USDC
+        <IconImage src={toExchange.chainIcon} />${symbol} x $USDC<IconImage src={toExchange.exchangeIcon} />
       </h3>
       {fromToken && toToken && (
         <>
@@ -76,56 +82,57 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
               {toTokenBalance} ${symbol} on {toExchange.name}
             </li>
           </ul>
-          Type the amount you want to swap
-          <Input
-            placeholder="0.0"
-            onChange={(e) => {
-              number = parseFloat(e.target.value);
-              console.log(
-                e.target.value,
-                fromExchange,
-                fromToken,
-                toToken,
-                number
-              );
-              if (number > 0) {
-                geQuote(fromExchange, fromToken, toToken, number);
+          {(fromTokenBalance && toTokenBalance) && (
+            <>
+              Type the amount you want to swap
+              <Input
+                placeholder="0.0"
+                onChange={(e) => {
+                  number = parseFloat(e.target.value);
+                  console.log('***BEFORE',
+                    e.target.value,
+                  {  fromExchange,
+                    fromToken,
+                    toToken,
+                    number}
+                  );
+                  setAmount(number)
+                  if (number > 0) {
+                    getQuote(fromExchange, toExchange, fromToken, toToken, number).then(c => {
+                      console.log('***getQuote3')
+                      setQuote(c)
+                    })
+                  }
+                }}
+              ></Input>
+              {
+                quote && (
+                  <>
+                    {displayNumber(quote[0].formatted)} $USDC is {displayNumber(quote[1].formatted)} $USDT on Matic <br/>
+                    {displayNumber(quote[2].formatted)} $USDT is {displayNumber(quote[3].formatted)} $USDC on xDai <br/>
+                    (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} $USDC)
+                    <Button
+                      onClick={(e) => {
+                        // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+                        console.log({fromExchange, toExchange, fromToken, toToken})
+                        // swap(
+                        //   fromToken,
+                        //   toToken,
+                        //   fromExchange.chainId,
+                        //   toExchange.chainId,
+                        //   connextNode                                       
+                        // )
+                      }}
+                    >
+                      Swap
+                    </Button>
+                  </>
+                )
               }
-            }}
-          ></Input>
+            </>
+          ) }
         </>
       )}
-
-      <ul>
-        <li>
-          1.Set Network to {fromExchange.name}
-          {currentChain?.name === fromExchange.name
-            ? `✔️`
-            : `(You are connected to ${currentChain?.name})`}
-        </li>
-        <li>
-          2: Approve USDC
-          {/* (current allowance = {fromTokenAllowance}) */}
-          {/* <Button
-            onClick={() => {
-              approveToken(fromExchange, fromToken)
-            }}
-          >Approve</Button>
-          <Button
-            onClick={() => {
-              revokeToken(fromExchange, fromToken)
-            }}
-          >
-            Revoke
-          </Button> */}
-        </li>
-        <li>3: Swap from $USDC to ${symbol}</li>
-        <li>
-          4: Transfer ${symbol} from ${fromExchange.name} to ${toExchange.name}
-        </li>
-        <li>5: Set Network to {toExchange.name}</li>
-        <li>6: Swap ${symbol} to $USDC</li>
-      </ul>
     </Body>
   );
 }

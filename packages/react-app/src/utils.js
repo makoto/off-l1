@@ -47,28 +47,50 @@ export async function revokeToken(exchange, token){
   await erc20.decreaseAllowance(exchange.exchangeRouterAddress, ZERO_AMOUNT);
 }
 
-export async function geQuote(exchange, fromToken, toToken, amount){
-  const endpoint = exchange.rpcUrl
+function getRouter(exchange){
   const provider = new JsonRpcProvider(exchange.rpcUrl)
-  const router = new Contract(exchange.exchangeRouterAddress, abis.router, provider);
-  window.ethers = ethers
-  const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+  return new Contract(exchange.exchangeRouterAddress, abis.router, provider);
+}
 
-  console.log({
-    rpcUrl:exchange.rpcUrl,
-    explorerUrl:exchange.explorerUrl,
-    router:exchange.exchangeRouterAddress,abi:abis.router,
-    rawAmount, tokens:[fromToken.id, toToken.id]
-  })
-  const r = await router.WETH()
-  console.log('***WETH', {r})
-  // const baseQuotes = await router.getAmountsOut(rawAmount, [fromToken.id, toToken.id])
-  // console.log('***baseQuotes', {
-  //   rawAmount,
-  //   baseQuotes,
-  //   amount
-  // })
-  // return baseQuotes
+export async function getQuote(fromExchange, toExchange, fromToken, toToken, amount){
+  console.log('***getQuote0')
+  const fromRouter = getRouter(fromExchange)
+  const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+  // TODO: Refactor to extrac dynamically
+  const MATIC_USDT = '0xc2132d05d31c914a87c6611c10748aeb04b58e8f'
+  const XDAI_USDC = '0xddafbb505ad214d7b80b1f830fccc89b60fb7a83'
+
+  const baseQuotes = await fromRouter.getAmountsOut(rawAmount, [fromToken.id, MATIC_USDT])
+
+  const toRouter = getRouter(toExchange)
+  console.log('***getQuote1.1', 
+    baseQuotes[1]
+  )
+
+  const reverseQuotes = await toRouter.getAmountsOut(baseQuotes[1], [toToken.id, XDAI_USDC])
+
+  return [
+    {
+      raw:baseQuotes[0],
+      formatted:ethers.utils.formatUnits(baseQuotes[0], fromToken.decimals),
+      decimals:fromToken.decimals
+    },
+    {
+      raw:baseQuotes[1],
+      formatted:ethers.utils.formatUnits(baseQuotes[1], fromToken.decimals),
+      decimals:toToken.decimals
+    },
+    {
+      raw:reverseQuotes[0],
+      formatted:ethers.utils.formatUnits(reverseQuotes[0], toToken.decimals),
+      decimals:fromToken.decimals
+    },
+    {
+      raw:reverseQuotes[1],
+      formatted:ethers.utils.formatUnits(reverseQuotes[1], toToken.decimals),
+      decimals:toToken.decimals
+    }
+  ]
 }
 
 export async function getBNB(){
@@ -85,4 +107,8 @@ export async function getEth(){
 export async function getDai(){
   const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=dai&vs_currencies=usd`)
   return await result.json()
+}
+
+export function displayNumber(n){
+  return parseFloat(n).toFixed(3)
 }
