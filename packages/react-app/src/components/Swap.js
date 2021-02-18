@@ -13,8 +13,9 @@ export const SwapLinkContainer = styled.span`
 
 function Swap({ chainInfos, combined, currentChain, account, connextNode, provider }) {
   const [fromTokenBalance, setFromTokenBalance] = useState(false);
-  const [fromTokenAllowance, setFromTokenAllowance] = useState(false);
+  const [fromTokenPairBalance, setFromTokenPairBalance] = useState(false);
   const [toTokenBalance, setToTokenBalance] = useState(false);
+  const [toTokenPairBalance, setToTokenPairBalance] = useState(false);
   const [amount, setAmount] = useState(false);
   const [quote, setQuote] = useState(false);
   const { from, to, symbol } = useParams();
@@ -37,25 +38,18 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
     toTokenPair = fromTokenData.data?.filter((d) => d?.exchangeName === to)[0];
   }
 
-  if (fromExchange && fromToken && account) {
+  if (fromExchange && toExchange && fromToken && toToken && account) {
     getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
       setFromTokenBalance(b);
     });
-    console.log("***Swap1", {
-      fromExchange,
-      fromToken,
-      account,
+    getTokenBalance(fromExchange.rpcUrl, fromTokenPair, account).then((b) => {
+      setFromTokenPairBalance(b);
     });
-    // getTokenAllowance(fromExchange, fromToken, account).then(b => {
-    //   console.log('***Swap2', {
-    //     b
-    //   })
-    //   setFromTokenAllowance(b)
-    // })
-  }
-  if (toExchange && toToken && account) {
     getTokenBalance(toExchange.rpcUrl, toToken, account).then((b) => {
       setToTokenBalance(b);
+    });
+    getTokenBalance(toExchange.rpcUrl, toTokenPair, account).then((b) => {
+      setToTokenPairBalance(b);
     });
   }
   console.log("***Swap0", {
@@ -81,8 +75,16 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
               {fromTokenBalance} ${fromSymbol} on {fromExchange.name}
             </li>
             <li>
+              {fromTokenPairBalance} ${symbol} on {fromExchange.name}
+            </li>
+
+            <li>
               {toTokenBalance} ${symbol} on {toExchange.name}
             </li>
+            <li>
+              {toTokenPairBalance} ${fromSymbol} on {toExchange.name}
+            </li>
+
           </ul>
           {(fromTokenBalance && toTokenBalance) && (
             <>
