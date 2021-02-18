@@ -19,14 +19,7 @@ function Swap({
   const toExchange = chainInfos.filter(c => c.exchangeName === to )[0]
   const [ fromTokenBalance, setFromTokenBalance ] = useState(false);
   const [ fromTokenAllowance, setFromTokenAllowance ] = useState(false);
-  const [ toTokenBalance, setToTokenBalance ] = useState(false);
-  const [ node, setNode ] = useState(false);
-
-  React.useEffect(() => {
-    initNode().then(node => {
-      setNode(node)
-    })
-  }, []);
+  const [toTokenBalance, setToTokenBalance] = useState(false);
 
   let fromTokenData, toTokenData, fromToken, toToken, number
   const fromSymbol = 'USDC'
