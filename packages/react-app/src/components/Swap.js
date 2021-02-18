@@ -5,6 +5,7 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getTokenBalance, geQuote } from "../utils"
 import { ethers } from "ethers";
+import { getChannelsForChains, initNode, swap } from '../connext'
 
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
@@ -19,12 +20,19 @@ function Swap({
   const [ fromTokenBalance, setFromTokenBalance ] = useState(false);
   const [ fromTokenAllowance, setFromTokenAllowance ] = useState(false);
   const [ toTokenBalance, setToTokenBalance ] = useState(false);
+  const [ node, setNode ] = useState(false);
+
+  React.useEffect(() => {
+    initNode().then(node => {
+      setNode(node)
+    })
+  }, []);
+
   let fromTokenData, toTokenData, fromToken, toToken, number
   const fromSymbol = 'USDC'
   if(combined.length > 0){
     fromTokenData = combined.filter(c => c.symbol === fromSymbol)[0]
     toTokenData = combined.filter(c => c.symbol === symbol)[0]
-    // debugger
     console.log({fromTokenData  })
     fromToken = fromTokenData.data?.filter(d => d?.exchangeName === from )[0]
     toToken =  toTokenData.data?.filter(d => d?.exchangeName === to )[0]
