@@ -11,7 +11,7 @@ export const SwapLinkContainer = styled.span`
   margin-right: 1em;
 `;
 
-function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
+function Swap({ chainInfos, combined, currentChain, account, connextNode, provider }) {
   const [fromTokenBalance, setFromTokenBalance] = useState(false);
   const [fromTokenAllowance, setFromTokenAllowance] = useState(false);
   const [toTokenBalance, setToTokenBalance] = useState(false);
@@ -115,13 +115,17 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode }) {
                       onClick={(e) => {
                         // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
                         console.log({fromExchange, toExchange, fromToken, toToken})
-                        // swap(
-                        //   fromToken,
-                        //   toToken,
-                        //   fromExchange.chainId,
-                        //   toExchange.chainId,
-                        //   connextNode                                       
-                        // )
+                        const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
+                        console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
+                        swap(
+                          normalizedAmount,
+                          fromToken.id,
+                          toToken.id,
+                          fromExchange.chainId,
+                          toExchange.chainId,
+                          connextNode,
+                          provider                                    
+                        )
                       }}
                     >
                       Swap
