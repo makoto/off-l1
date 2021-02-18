@@ -33,18 +33,42 @@ export async function getTokenAllowance(exchange, token, ownerAddress){
 
 export async function approveToken(exchange, token){
   const endpoint = exchange.rpcUrl
-  const tokenAddress = token.id
   const provider = new JsonRpcProvider(endpoint)
+  const tokenAddress = token.id
   const erc20 = new Contract(tokenAddress, abis.erc20, provider);
   await erc20.approve(exchange.exchangeRouterAddress, MAX_AMOUNT);
 }
 
 export async function revokeToken(exchange, token){
   const endpoint = exchange.rpcUrl
-  const tokenAddress = token.id
   const provider = new JsonRpcProvider(endpoint)
+  const tokenAddress = token.id
   const erc20 = new Contract(tokenAddress, abis.erc20, provider);
   await erc20.decreaseAllowance(exchange.exchangeRouterAddress, ZERO_AMOUNT);
+}
+
+export async function geQuote(exchange, fromToken, toToken, amount){
+  const endpoint = exchange.rpcUrl
+  const provider = new JsonRpcProvider(exchange.rpcUrl)
+  const router = new Contract(exchange.exchangeRouterAddress, abis.router, provider);
+  window.ethers = ethers
+  const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+
+  console.log({
+    rpcUrl:exchange.rpcUrl,
+    explorerUrl:exchange.explorerUrl,
+    router:exchange.exchangeRouterAddress,abi:abis.router,
+    rawAmount, tokens:[fromToken.id, toToken.id]
+  })
+  const r = await router.WETH()
+  console.log('***WETH', {r})
+  // const baseQuotes = await router.getAmountsOut(rawAmount, [fromToken.id, toToken.id])
+  // console.log('***baseQuotes', {
+  //   rawAmount,
+  //   baseQuotes,
+  //   amount
+  // })
+  // return baseQuotes
 }
 
 export async function getBNB(){

@@ -3,7 +3,7 @@ import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Header, Image, IconImage, Link, InternalLink, Input } from "../components";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getTokenBalance, getTokenAllowance, approveToken, revokeToken } from "../utils"
+import { getTokenBalance, geQuote } from "../utils"
 import { ethers } from "ethers";
 
 export const SwapLinkContainer = styled.span`
@@ -19,28 +19,40 @@ function Swap({
   const [ fromTokenBalance, setFromTokenBalance ] = useState(false);
   const [ fromTokenAllowance, setFromTokenAllowance ] = useState(false);
   const [ toTokenBalance, setToTokenBalance ] = useState(false);
-  let fromTokenData, toTokenData, fromToken, toToken
+  let fromTokenData, toTokenData, fromToken, toToken, number
   const fromSymbol = 'USDC'
   if(combined.length > 0){
     fromTokenData = combined.filter(c => c.symbol === fromSymbol)[0]
     toTokenData = combined.filter(c => c.symbol === symbol)[0]
-    fromToken = fromTokenData.data.filter(d => d.exchangeName === from )[0]
-    toToken =  toTokenData.data.filter(d => d.exchangeName === to )[0]
+    // debugger
+    console.log({fromTokenData  })
+    fromToken = fromTokenData.data?.filter(d => d?.exchangeName === from )[0]
+    toToken =  toTokenData.data?.filter(d => d?.exchangeName === to )[0]
   }
 
   if(fromExchange && fromToken && account){
     getTokenBalance(fromExchange.rpcUrl, fromToken, account).then(b => {
       setFromTokenBalance(b)
     })
-    getTokenAllowance(fromExchange, fromToken, account).then(b => {
-      setFromTokenAllowance(b)
+    console.log('***Swap1', {
+      fromExchange, fromToken, account
     })
+    // getTokenAllowance(fromExchange, fromToken, account).then(b => {
+    //   console.log('***Swap2', {
+    //     b
+    //   })  
+    //   setFromTokenAllowance(b)
+    // })
   }
   if(toExchange && toToken && account){
     getTokenBalance(toExchange.rpcUrl, toToken, account).then(b => {
       setToTokenBalance(b)
     })
   }
+  console.log('***Swap0', {
+    toToken, fromToken, account, combined
+  })
+
   return (
     <Body>
       <h3>
@@ -52,7 +64,7 @@ function Swap({
       </h3>
       {fromToken && toToken && (
         <>
-          Token balance
+          Your token balance
           <ul>
             <li>
               {fromTokenBalance} ${fromSymbol} on {fromExchange.name}
@@ -61,10 +73,19 @@ function Swap({
               {toTokenBalance} ${symbol} on {toExchange.name}
             </li>
           </ul>
+          Type the amount you want to swap
+          <Input placeholder="0.0"
+            onChange={(e) => {
+              number = parseFloat(e.target.value)
+              console.log(e.target.value, fromExchange, fromToken, toToken, number)
+              if(number > 0){
+                geQuote(fromExchange, fromToken, toToken, number)
+              }
+            }}
+          >
+          </Input>
         </>
       )}
-      Type the amount you want to swap
-      <Input placeholder="0.0"></Input>
 
       <ul>
         <li>
@@ -75,7 +96,7 @@ function Swap({
         </li>
         <li>
           2: Approve USDC
-          (current allowance = {fromTokenAllowance})
+          {/* (current allowance = {fromTokenAllowance}) */}
           {/* <Button
             onClick={() => {
               approveToken(fromExchange, fromToken)

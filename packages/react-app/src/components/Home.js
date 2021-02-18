@@ -6,15 +6,16 @@ import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../c
 function Home({chainInfos, combined}) {
     const r = combined.map(c => {
       return chainInfos.map((chain, i) => {
-        if(c.data[i].symbol !== 'DAI'){
+        if(c?.data[i]?.symbol !== 'DAI'){
           return({
             network:chain.name,
-            symbol:c.data[i].symbol,
-            address:c.data[i].id
+            symbol:c?.data[i]?.symbol,
+            address:c?.data[i]?.id
           })
         }
       })
     })
+    console.log('***HOME', {combined})
     return (
       <Body>
       <h1>🐰Off L1</h1>
@@ -35,11 +36,20 @@ function Home({chainInfos, combined}) {
                 >{c.symbol}</InternalLink>
               </td>
               {chainInfos.map((_, i) => {
-                return(
-                  <td>
-                    ${(c.data[i].derivedETH * chainInfos[i].unitPrice).toFixed(2)}
-                  </td>
-                )
+                if(c?.data[i]){
+                  return(
+                    <td>
+                      ${(c.data[i].derivedETH * chainInfos[i].unitPrice).toFixed(2)}
+                    </td>
+                  )
+
+                }else{
+                  return(
+                    <td>
+                      N/A
+                    </td>
+                  )
+                }
               })}
               </tr>
           ))}

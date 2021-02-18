@@ -24,7 +24,8 @@ function Token({
       {combined.length === 0 ? (<>Loading...</>) : (
         chainInfos.map((c, i) => {
           return chainInfos.map((cc, ii) => {
-            if(c.name !== cc.name){
+            console.log(tokenData.data[i], {cc,ii})
+            if(tokenData.data[i] && tokenData.data[ii] && c.name !== cc.name){
               let cValue = tokenData.data[i].derivedETH * c.unitPrice
               let ccValue = tokenData.data[ii].derivedETH * cc.unitPrice
               let diff = ((ccValue - cValue) / ((cValue + ccValue) / 2)) * 100
