@@ -13,7 +13,6 @@ import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
-import { ConnextModal } from "@connext/vector-modal";
 import {
   HashRouter as Router,
   Switch,

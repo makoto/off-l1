@@ -8,14 +8,15 @@ export const initNode = async () => {
   const node = new BrowserNode({
     routerPublicIdentifier,
     chainProviders: {
-      "56": "https://bsc-dataseed.binance.org/",
+      "56":
+        "https://bsc-dataseed.binance.org/",
       "100": "https://rpc.xdaichain.com/",
-      "137": "https://rpc-mainnet.matic.network",
+      "137":
+        "https://rpc-mainnet.matic.network",
     },
   });
   await node.init();
   node.setup();
-  node.getChannelState();
 
   return node;
 };
@@ -38,7 +39,9 @@ export const getChannelsForChains = async (fromChainId, toChainId, node) => {
     if (res.isError) {
       throw res.getError();
     }
-    const channelStateRes = await node.getChannelState();
+    const channelStateRes = await node.getStateChannel({
+      channelAddress: res.getValue(),
+    });
     if (channelStateRes.isError) {
       throw res.getError();
     }
@@ -62,7 +65,9 @@ export const getChannelsForChains = async (fromChainId, toChainId, node) => {
     if (res.isError) {
       throw res.getError();
     }
-    const channelStateRes = await node.getChannelState();
+    const channelStateRes = await node.getStateChannel({
+      channelAddress: res.getValue(),
+    });
     if (channelStateRes.isError) {
       throw res.getError();
     }
