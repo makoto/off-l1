@@ -81,4 +81,10 @@ export const swap = async (
   fromChainId,
   toChainId,
   node
-) => {};
+) => {
+  const { fromChannel, toChannel } = await getChannelsForChains(
+    fromChainId,
+    toChainId,
+    node
+  );
+};
