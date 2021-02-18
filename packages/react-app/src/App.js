@@ -194,52 +194,53 @@ function App({chainInfos}) {
   }
   return (
     <Router>
-    <div>
-      <Header>
-        <Link
-          to={`/`}
-          style={{ textDecoration: 'none', fontSize:'xx-large' }}
-        >🐰</Link>
-        <NetworkContainer>
-          {currentChain && (
-            <div>
-              Connected to { currentChain.name } as { account.slice(0,5) }... ({balanceToDisplay} ${currentChain.tokenSymbol})
-            </div>
-          )}
-          <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
-        </NetworkContainer>
-      </Header>
-      <Switch>
-        <Route path="/token/:symbol">
-          <Token
-            chainInfos={chainInfos}
-            combined={combined}
-          />
-        </Route>
-        <Route path="/exchanges/:from-:to/token/:symbol">
-          <Swap
-            chainInfos={chainInfos}
-            currentChain={currentChain}
-            combined={combined}
-            account={account}
-          />
-        </Route>
-        <Route path="/about">
-          <About />
-        </Route>
-        <Route path="/users">
-          <Users />
-        </Route>
-        <Route path="/">
-          <Home
-            chainInfos={chainInfos}
-            combined={combined}
-          />
-        </Route>
-      </Switch>
-    </div>
+      <div>
+        <Header>
+          <Link
+            to={`/`}
+            style={{ textDecoration: "none", fontSize: "xx-large" }}
+          >
+            🐰
+          </Link>
+          <NetworkContainer>
+            {currentChain && (
+              <div>
+                Connected to {currentChain.name} as {account.slice(0, 5)}... (
+                {balanceToDisplay} ${currentChain.tokenSymbol})
+              </div>
+            )}
+            <WalletButton
+              provider={provider}
+              loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
+            />
+          </NetworkContainer>
+        </Header>
+        <Switch>
+          <Route path="/token/:symbol">
+            <Token chainInfos={chainInfos} combined={combined} />
+          </Route>
+          <Route path="/exchanges/:from-:to/token/:symbol">
+            <Swap
+              chainInfos={chainInfos}
+              currentChain={currentChain}
+              combined={combined}
+              account={account}
+              connextNode={node}
+            />
+          </Route>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <Home chainInfos={chainInfos} combined={combined} />
+          </Route>
+        </Switch>
+      </div>
     </Router>
-
   );
 }
 

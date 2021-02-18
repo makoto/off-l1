@@ -16,7 +16,6 @@ export const initNode = async () => {
     },
   });
   await node.init();
-  node.setup();
 
   return node;
 };
