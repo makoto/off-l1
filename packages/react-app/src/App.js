@@ -227,6 +227,7 @@ function App({chainInfos}) {
               combined={combined}
               account={account}
               connextNode={node}
+              provider={provider}
             />
           </Route>
           <Route path="/about">

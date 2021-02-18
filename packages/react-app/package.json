@@ -19,6 +19,8 @@
     "@connext/vector-browser-node": "^0.1.15",
     "@connext/vector-types": "^0.1.15",
     "@connext/vector-utils": "^0.1.15",
+    "@connext/vector-withdraw-helpers": "^0.0.1",
+    "@ethersproject/bignumber": "^5.0.14",
     "@ethersproject/contracts": "^5.0.5",
     "@ethersproject/providers": "^5.0.12",
     "@honeyswap/sdk": "^2.0.8",
