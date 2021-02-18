@@ -80,7 +80,7 @@ function App({chainInfos}) {
       chainInfos[2].name,daiPrice
     )
   }
-
+  console.log('*******', {TOKEN_DATA, chainInfos:chainInfos[0]})
   const { loading, error, data } = useQuery(TOKEN_DATA, {
     client:chainInfos[0].client
   });
@@ -95,49 +95,52 @@ function App({chainInfos}) {
     data, data1, data2
   })
   let combined = []
-  if(data && data2){
-    for (let i = 0; i < data?.tokens?.length; i++) {
-      const d = data?.tokens[i];
-      d.exchangeName = chainInfos[0].exchangeName
-      if(d.symbol.match(/DAI/)){
-        console.log(0, d.symbol)
-      }
-      if(d.symbol.match(/BTC/)){
-        console.log(0, d.symbol)
-      }
-      if(d.symbol.match(/ETH/)){
-        console.log(0, d.symbol)
-      }
+  if(data1 && data2){
+  //   for (let i = 0; i < data?.tokens?.length; i++) {
+  //     const d = data?.tokens[i];
+  //     d.exchangeName = chainInfos[0].exchangeName
+  //     if(d.symbol.match(/DAI/)){
+  //       console.log(0, d.symbol)
+  //     }
+  //     if(d.symbol.match(/BTC/)){
+  //       console.log(0, d.symbol)
+  //     }
+  //     if(d.symbol.match(/ETH/)){
+  //       console.log(0, d.symbol)
+  //     }
 
       for (let j = 0; j < data2?.tokens?.length; j++) {
         const d2 = data2?.tokens[j];
         d2.exchangeName = chainInfos[2].exchangeName
-        if(i == 0 && d2.symbol.match(/DAI/)){
-          console.log(2, d2.symbol)
-        }
-        if(i == 0 && d2.symbol.match(/BTC/)){
-          console.log(2, d2.symbol)
-        }
-        if(i == 0 && d2.symbol.match(/ETH/)){
-          console.log(2, d2.symbol)
-        }
+        // if(i == 0 && d2.symbol.match(/DAI/)){
+        //   console.log(2, d2.symbol)
+        // }
+        // if(i == 0 && d2.symbol.match(/BTC/)){
+        //   console.log(2, d2.symbol)
+        // }
+        // if(i == 0 && d2.symbol.match(/ETH/)){
+        //   console.log(2, d2.symbol)
+        // }
   
-        if(d.symbol === d2.symbol){
+        // if(d.symbol === d2.symbol){
           for (let k = 0; k < data1?.tokens?.length; k++) {
             const d1 = data1?.tokens[k];
             d1.exchangeName = chainInfos[1].exchangeName
-            if(d.symbol === d1.symbol){
+            // console.log('*****', d.symbol, d1.symbol, d2.symbol, {i, j, k, d, d1})
+            console.log('*****', d1.symbol, d2.symbol, {j, k, d1, d2})
+            if(d1.symbol === d2.symbol){
               combined.push({
-                symbol:d.symbol,
-                data:[d, d1, d2]
+                symbol:d1.symbol,
+                // data:[d, d1, d2]
+                data:[null, d1, d2]
               })    
             }
           }
-        }
+        // }
       }
     }
-  }
-  console.log({combined})
+  // }
+  console.log('*** App', {data, data1, data2, combined})
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [showModal, setShowModal] = React.useState(false);
   // React.useEffect(() => {
