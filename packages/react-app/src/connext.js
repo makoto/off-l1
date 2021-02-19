@@ -183,7 +183,7 @@ export const swap = async (
 
   const fromSwapWithdraw = await node.withdraw({
     assetId: fromToken,
-    amount: swapAmount,
+    amount: swapAmount.toString(),
     channelAddress: fromChannel.channelAddress,
     callData: fromSwapData,
     callTo: withdrawHelpers[fromChainId],
