@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import { Body, Button, Header, Image, IconImage, Link, InternalLink, Input } from "../components";
+import { Body, Button, Note, Image, IconImage, Link, InternalLink, Input, ActionContainer } from "../components";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getTokenBalance, getQuote, displayNumber } from "../utils"
@@ -51,7 +51,6 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
       setToTokenPairBalance(b);
     });
   }
-
   return (
     <Body>
       <h3>
@@ -108,28 +107,37 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     {displayNumber(quote[0].formatted)} ${fromSymbol} is {displayNumber(quote[1].formatted)} ${symbol} on {fromExchange.name} <br/>
                     {displayNumber(quote[2].formatted)} ${symbol} is {displayNumber(quote[3].formatted)} ${fromSymbol} on {toExchange.name} <br/>
                     (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} ${fromSymbol})
-                    <Button
-                      onClick={(e) => {
-                        // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
-                        console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
-                        // debugger
-                        const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
-                        console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
-                        swap(
-                          normalizedAmount,
-                          fromToken.id,
-                          fromTokenPair.id,
-                          toToken.id,
-                          toTokenPair.id,
-                          fromExchange.chainId,
-                          toExchange.chainId,
-                          connextNode,
-                          provider                                    
+                    <ActionContainer>
+                      {
+                        currentChain?.name === fromExchange?.name ? (
+                          <Button
+                          onClick={(e) => {
+                            // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+                            console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
+                            // debugger
+                            const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
+                            console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
+                            swap(
+                              normalizedAmount,
+                              fromToken.id,
+                              fromTokenPair.id,
+                              toToken.id,
+                              toTokenPair.id,
+                              fromExchange.chainId,
+                              toExchange.chainId,
+                              connextNode,
+                              provider                                    
+                            )
+                          }}
+                        >
+                          Swap
+                        </Button>
+                        ) : (
+                          <Note>Please connect to {fromExchange?.name} network to Continue </Note>
                         )
-                      }}
-                    >
-                      Swap
-                    </Button>
+                      }
+                    </ActionContainer>
+
                   </>
                 )
               }

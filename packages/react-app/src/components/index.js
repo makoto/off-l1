@@ -4,8 +4,12 @@ import {
 } from "react-router-dom";
 
 export const Note = styled.p`
-  font-size: small;
+  font-size: medium;
   color: grey;
+`
+
+export const ActionContainer = styled.p`
+   margin: 1em;
 `
 
 export const Header = styled.header`
@@ -67,9 +71,8 @@ export const Button = styled.button`
   margin: 0px 20px;
   padding: 12px 24px;
 
-  ${props => props.hidden && "hidden"} :focus {
-    border: none;
-    outline: none;
+  ${props => props.disabled && "disabled"} :{
+    opacity:0.5;
   }
 `;
 
