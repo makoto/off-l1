@@ -29,9 +29,9 @@ const chainJsonProviders = {
 
 // TODO: FILL IN ADDRESSES
 const uniswapRouters = {
-  137: "0xD1CC3E4b9c6d0cb0B9B97AEde44d4908FF0be507",
-  56: "0xD1CC3E4b9c6d0cb0B9B97AEde44d4908FF0be507",
-  100: "0xD1CC3E4b9c6d0cb0B9B97AEde44d4908FF0be507",
+  137: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff",
+  56: "0x05ff2b0db69458a0750badebc4f9e13add608c7f",
+  100: "0x1C232F01118CB8B424793ae03F870aa7D0ac7f77",
 };
 
 export const initNode = async () => {
