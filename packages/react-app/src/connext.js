@@ -159,6 +159,8 @@ export const swap = async (
       throw depositRes.getError();
     }
     console.log(`Deposit complete: `, depositRes.getValue());
+  } else {
+    console.log("Balance in channel, sending now.");
   }
 
   // withdraw with swap data
@@ -282,7 +284,7 @@ export const swap = async (
   );
   console.log("Generating toChain swap");
   const toSwapData = await toChainIdHelperContract.getCallData({
-    amountIn: swapAmount,
+    amountIn: swapAmount.toString(),
     amountOutMin: 1, // TODO: maybe change this, but this will make the swap always succeed
     router: uniswapRouters[toChainId],
     to: toChannel.channelAddress,
@@ -294,7 +296,7 @@ export const swap = async (
 
   const toSwapWithdraw = await node.withdraw({
     assetId: toTokenPair,
-    amount: swapAmount,
+    amount: swapAmount.toString(),
     channelAddress: toChannel.channelAddress,
     callData: toSwapData,
     callTo: withdrawHelpers[toChainId],
@@ -343,7 +345,7 @@ export const swap = async (
   // withdraw to address
   const toWithdraw = await node.withdraw({
     assetId: toTokenPair,
-    amount: swapAmount,
+    amount: posttoSwapBalance,
     channelAddress: toChannel.channelAddress,
     recipient: provider.address,
   });
