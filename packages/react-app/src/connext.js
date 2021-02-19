@@ -41,15 +41,6 @@ export const initNode = async () => {
   });
   await node.init();
 
-  node.withdraw({
-    assetId,
-    amount,
-    channelAddress,
-    callData,
-    callTo,
-    recipient,
-  });
-
   return node;
 };
 
