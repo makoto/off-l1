@@ -112,7 +112,8 @@ export const swap = async (
   fromChainId,
   toChainId,
   node,
-  provider
+  provider,
+  setLog
 ) => {
   console.log(`Starting swap: `, {
     swapAmount,
@@ -121,6 +122,7 @@ export const swap = async (
     fromChainId,
     toChainId,
   });
+  setLog(`(1/7) Starting swap`)
   let { fromChannel, toChannel } = await getChannelsForChains(
     fromChainId,
     toChainId,
@@ -149,7 +151,6 @@ export const swap = async (
     console.log("Sent approval tx, waiting for confirmation: ", tx);
     const receipt = await tx.wait();
     console.log("Tx confirmed, receipt: ", receipt);
-
     // reconcile deposit on from chain
     const depositRes = await node.reconcileDeposit({
       channelAddress: fromChannel.channelAddress,
@@ -160,7 +161,7 @@ export const swap = async (
     }
     console.log(`Deposit complete: `, depositRes.getValue());
   } else {
-    console.log("Balance in channel, sending now.");
+    setLog("(2/7) Balance in channel, sending now.");
   }
 
   // withdraw with swap data
@@ -180,7 +181,6 @@ export const swap = async (
     path: [fromToken, fromTokenPair],
   });
   console.log("fromSwapData: ", fromSwapData);
-
   const fromSwapWithdraw = await node.withdraw({
     assetId: fromToken,
     amount: swapAmount.toString(),
@@ -193,8 +193,8 @@ export const swap = async (
     throw fromSwapWithdraw.getError();
   }
   console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
-
   // await withdrawal event
+  setLog("(3/7) Waiting withdrawal");
   const fromWithdrawalData = await new Promise((res) => {
     node.once("WITHDRAWAL_RECONCILED", (data) => {
       console.log("WITHDRAWAL_RECONCILED data: ", data);
@@ -208,6 +208,7 @@ export const swap = async (
   );
 
   // reconcile deposit on from chain
+  setLog('(4/7) Reconciling deposit')
   const fromSwapDepositRes = await node.reconcileDeposit({
     channelAddress: fromChannel.channelAddress,
     assetId: fromTokenPair,
@@ -216,7 +217,6 @@ export const swap = async (
     throw fromSwapDepositRes.getError();
   }
   console.log(`Deposit complete: `, fromSwapDepositRes.getValue());
-
   let channelStateRes = await node.getStateChannel({
     channelAddress: fromChannel.channelAddress,
   });
@@ -232,6 +232,7 @@ export const swap = async (
   console.log("postFromSwapBalance: ", postFromSwapBalance);
 
   // transfer cross chain
+  setLog('(5/7) Transferring cross chain')
   const preImage = getRandomBytes32();
   const lockHash = utils.soliditySha256(["bytes32"], [preImage]);
   const routingId = getRandomBytes32();
@@ -293,7 +294,7 @@ export const swap = async (
     path: [toToken, toTokenPair],
   });
   console.log("toSwapData: ", toSwapData);
-
+  setLog('(6/7) Swapping')
   const toSwapWithdraw = await node.withdraw({
     assetId: toTokenPair,
     amount: swapAmount.toString(),
@@ -352,5 +353,6 @@ export const swap = async (
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
   }
+  setLog('(7/7) Swapping')
   console.log(`To withdraw complete: `, toWithdraw.getValue());
 };

@@ -18,6 +18,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
   const [toTokenPairBalance, setToTokenPairBalance] = useState(false);
   const [amount, setAmount] = useState(false);
   const [quote, setQuote] = useState(false);
+  const [log, setLog] = useState(false);
   const { from, to, symbol } = useParams();
   if(chainInfos && chainInfos.length > 0){
   }else{
@@ -51,9 +52,11 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
       setToTokenPairBalance(b);
     });
   }
+
   return (
     <Body>
       <h3>
+
       <IconImage src={fromExchange.exchangeIcon} /> $USDC x ${symbol}
       <IconImage src={fromExchange.chainIcon} />
         ->
@@ -106,10 +109,13 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                   <>
                     {displayNumber(quote[0].formatted)} ${fromSymbol} is {displayNumber(quote[1].formatted)} ${symbol} on {fromExchange.name} <br/>
                     {displayNumber(quote[2].formatted)} ${symbol} is {displayNumber(quote[3].formatted)} ${fromSymbol} on {toExchange.name} <br/>
-                    (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} ${fromSymbol})
+                    <Note>
+                      (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} ${fromSymbol})
+                    </Note>
                     <ActionContainer>
                       {
                         currentChain?.name === fromExchange?.name ? (
+                          <>
                           <Button
                           onClick={(e) => {
                             // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
@@ -126,18 +132,24 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                               fromExchange.chainId,
                               toExchange.chainId,
                               connextNode,
-                              provider                                    
+                              provider,
+                              setLog
                             )
                           }}
                         >
                           Swap
                         </Button>
+                        </>
                         ) : (
                           <Note>Please connect to {fromExchange?.name} network to Continue </Note>
                         )
                       }
                     </ActionContainer>
-
+                    {log && (
+                      <div>
+                        Current status: {log}
+                      </div>
+                    )}
                   </>
                 )
               }
