@@ -31,7 +31,6 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
   if (combined.length > 0) {
     fromTokenData = combined.filter((c) => c.symbol === fromSymbol)[0];
     toTokenData = combined.filter((c) => c.symbol === symbol)[0];
-    console.log({ fromTokenData });
     fromToken = fromTokenData.data?.filter((d) => d?.exchangeName === from)[0];
     fromTokenPair = toTokenData.data?.filter((d) => d?.exchangeName === from)[0];
     toToken = toTokenData.data?.filter((d) => d?.exchangeName === to)[0];
@@ -52,12 +51,6 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
       setToTokenPairBalance(b);
     });
   }
-  console.log("***Swap0", {
-    toToken,
-    fromToken,
-    account,
-    combined,
-  });
 
   return (
     <Body>
@@ -119,6 +112,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                       onClick={(e) => {
                         // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
                         console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
+                        // debugger
                         const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
                         console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
                         swap(

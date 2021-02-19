@@ -31,14 +31,12 @@ function useWeb3Modal(config = {}) {
 
   // Open wallet selection modal.
   const loadWeb3Modal = useCallback(async () => {
-    console.log('***loadWeb3Modal1')
     let newProvider
     try{
       newProvider = await web3Modal.connect();
     }catch(e){
-      console.log('***loadWeb3Modal2', {e})
+      console.log('***loadWeb3Modal error', {e})
     }
-    console.log('***loadWeb3Modal3')
     setProvider(new Web3Provider(newProvider));
   }, [web3Modal]);
 

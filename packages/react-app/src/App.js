@@ -73,14 +73,6 @@ function App({chainInfos}) {
     chainInfos[2].unitPrice = r.dai.usd
   })
 
-  if(chainInfos.length === 3){
-    console.log(
-      chainInfos[0].name,bnbPrice,
-      chainInfos[1].name,ethPrice,
-      chainInfos[2].name,daiPrice
-    )
-  }
-  console.log('*******', {TOKEN_DATA, chainInfos:chainInfos[0]})
   const { loading, error, data } = useQuery(TOKEN_DATA, {
     client:chainInfos[0].client
   });
@@ -91,9 +83,6 @@ function App({chainInfos}) {
   const { loading:loading2, error:error2, data:data2 } = useQuery(TOKEN_DATA, {
     client:chainInfos[2].client
   });
-  console.log({
-    data, data1, data2
-  })
   let combined = []
   if(data1 && data2){
   //   for (let i = 0; i < data?.tokens?.length; i++) {
@@ -126,8 +115,6 @@ function App({chainInfos}) {
           for (let k = 0; k < data1?.tokens?.length; k++) {
             const d1 = data1?.tokens[k];
             d1.exchangeName = chainInfos[1].exchangeName
-            // console.log('*****', d.symbol, d1.symbol, d2.symbol, {i, j, k, d, d1})
-            console.log('*****', d1.symbol, d2.symbol, {j, k, d1, d2})
             if(d1.symbol === d2.symbol){
               combined.push({
                 symbol:d1.symbol,
@@ -140,7 +127,6 @@ function App({chainInfos}) {
       }
     }
   // }
-  console.log('*** App', {data, data1, data2, combined})
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
 
   const chainId = provider?._network?.chainId
