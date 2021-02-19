@@ -3,6 +3,11 @@ import {
   Link as RouterLink
 } from "react-router-dom";
 
+export const Note = styled.p`
+  font-size: small;
+  color: grey;
+`
+
 export const Header = styled.header`
   background-color: #ffe2d1;
   color: black;

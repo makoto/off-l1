@@ -28,7 +28,7 @@ function Token({
               let cValue = tokenData.data[i].derivedETH * c.unitPrice
               let ccValue = tokenData.data[ii].derivedETH * cc.unitPrice
               let diff = ((ccValue - cValue) / ((cValue + ccValue) / 2)) * 100
-              if(diff > 0){
+              // if(diff > 0){
                 return(
                   <li>
                     <SwapLinkContainer>
@@ -43,8 +43,8 @@ function Token({
                       Swap
                     </InternalLink>
                   </li>
-                )  
-              }
+                )
+              // }
             }
           })
         })

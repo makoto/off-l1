@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useQuery } from "@apollo/react-hooks";
 
-import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../components";
+import { Note, Body, Button, Header, Image, IconImage, Link, InternalLink } from "../components";
 
 function Home({chainInfos, combined}) {
     const r = combined.map(c => {
@@ -20,6 +20,7 @@ function Home({chainInfos, combined}) {
       <Body>
       <h1>🐰Off L1</h1>
       <div>Swap between Uniswap clones across chains</div>
+      <Note>(PancakeSwap data is currently out of sync)</Note>
       {(combined?.length > 0) ? (
           <table>
           <tr>
