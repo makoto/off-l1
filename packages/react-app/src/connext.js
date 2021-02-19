@@ -41,6 +41,15 @@ export const initNode = async () => {
   });
   await node.init();
 
+  node.withdraw({
+    assetId,
+    amount,
+    channelAddress,
+    callData,
+    callTo,
+    recipient,
+  });
+
   return node;
 };
 
@@ -179,6 +188,19 @@ export const swap = async (
   });
   console.log("fromSwapData: ", fromSwapData);
 
+  const fromSwapWithdraw = await node.withdraw({
+    assetId: fromToken,
+    amount: swapAmount,
+    channelAddress: fromChannel.channelAddress,
+    callData: fromSwapData,
+    callTo: withdrawHelpers[fromChainId],
+    recipient: withdrawHelpers[fromChainId],
+  });
+  if (fromSwapWithdraw.isError) {
+    throw fromSwapWithdraw.getError();
+  }
+  console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
+
   // await withdrawal event
   const fromWithdrawalData = await new Promise((res) => {
     node.once("WITHDRAWAL_RECONCILED", (data) => {
@@ -237,9 +259,105 @@ export const swap = async (
     recipientChainId: toChainId,
   });
 
-  // withdraw to swap
+  // await transfer event
+  const toTransferData = await new Promise((res) => {
+    node.once("CONDITIONAL_TRANSFER_CREATED", (data) => {
+      console.log("CONDITIONAL_TRANSFER_CREATED data: ", data);
+      if (res.channelAddress === toChannel.channelAddress) {
+        res(data);
+      }
+    });
+  });
+
+  // resolve transfer
+  const resolveRes = await node.resolveTransfer({
+    channelAddress: toChannel.channelAddress,
+    transferResolver: {
+      preImage,
+    },
+    transferId: toTransferData.transfer.transferId,
+  });
+  if (resolveRes.isError) {
+    throw resolveRes.getError();
+  }
+  const resolve = resolveRes.getValue();
+  console.log("resolve: ", resolve);
+
+  // withdraw with swap data
+  const toChainIdHelperContract = new Contract(
+    withdrawHelpers[fromChainId],
+    UniswapWithdrawHelper.abi,
+    chainJsonProviders[toChainId]
+  );
+  console.log("Generating toChain swap");
+  const toSwapData = await toChainIdHelperContract.getCallData({
+    amountIn: swapAmount,
+    amountOutMin: 1, // TODO: maybe change this, but this will make the swap always succeed
+    router: uniswapRouters[toChainId],
+    to: toChannel.channelAddress,
+    tokenA: toToken,
+    tokenB: toTokenPair,
+    path: [toToken, toTokenPair],
+  });
+  console.log("toSwapData: ", toSwapData);
+
+  const toSwapWithdraw = await node.withdraw({
+    assetId: toTokenPair,
+    amount: swapAmount,
+    channelAddress: toChannel.channelAddress,
+    callData: toSwapData,
+    callTo: withdrawHelpers[toChainId],
+    recipient: withdrawHelpers[toChainId],
+  });
+  if (toSwapWithdraw.isError) {
+    throw toSwapWithdraw.getError();
+  }
+  console.log(`To swap withdraw complete: `, toSwapWithdraw.getValue());
 
   // await withdrawal event
+  const toWithdrawalData = await new Promise((res) => {
+    node.once("WITHDRAWAL_RECONCILED", (data) => {
+      console.log("WITHDRAWAL_RECONCILED data: ", data);
+      res(data);
+    });
+  });
+
+  // make sure tx is sent
+  await chainJsonProviders[toChainId].waitFor(toWithdrawalData.transactionHash);
+
+  // reconcile deposit on toChain
+  const toSwapDepositRes = await node.reconcileDeposit({
+    channelAddress: toChannel.channelAddress,
+    assetId: toToken,
+  });
+  if (toSwapDepositRes.isError) {
+    throw toSwapDepositRes.getError();
+  }
+  console.log(`Deposit complete: `, toSwapDepositRes.getValue());
+
+  channelStateRes = await node.getStateChannel({
+    channelAddress: toChannel.channelAddress,
+  });
+  if (channelStateRes.isError) {
+    throw channelStateRes.getError();
+  }
+  toChannel = channelStateRes.getValue();
+  const posttoSwapBalance = getBalanceForAssetId(
+    toChannel,
+    toToken,
+    "bob"
+  );
+  console.log("posttoSwapBalance: ", posttoSwapBalance);
 
   // withdraw to address
+  const toWithdraw = await node.withdraw({
+    assetId: toTokenPair,
+    amount: swapAmount,
+    channelAddress: toChannel.channelAddress,
+    recipient: provider.address,
+  });
+  if (toWithdraw.isError) {
+    throw toWithdraw.getError();
+  }
+  console.log(`To withdraw complete: `, toWithdraw.getValue());
 };
