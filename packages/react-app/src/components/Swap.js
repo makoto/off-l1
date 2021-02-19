@@ -118,13 +118,15 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     <Button
                       onClick={(e) => {
                         // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
-                        console.log({fromExchange, toExchange, fromToken, toToken})
+                        console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
                         const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
                         console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
                         swap(
                           normalizedAmount,
                           fromToken.id,
+                          fromTokenPair.id,
                           toToken.id,
+                          toTokenPair.id,
                           fromExchange.chainId,
                           toExchange.chainId,
                           connextNode,
