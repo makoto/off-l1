@@ -122,7 +122,7 @@ export const swap = async (
     fromChainId,
     toChainId,
   });
-  setLog(`(1/7) Starting swap`)
+  setLog(`(1/7) Starting swap`);
   let { fromChannel, toChannel } = await getChannelsForChains(
     fromChainId,
     toChainId,
@@ -193,22 +193,14 @@ export const swap = async (
     throw fromSwapWithdraw.getError();
   }
   console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
-  // await withdrawal event
-  setLog("(3/7) Waiting withdrawal");
-  const fromWithdrawalData = await new Promise((res) => {
-    node.once("WITHDRAWAL_RECONCILED", (data) => {
-      console.log("WITHDRAWAL_RECONCILED data: ", data);
-      res(data);
-    });
-  });
-
   // make sure tx is sent
-  await chainJsonProviders[fromChainId].waitFor(
-    fromWithdrawalData.transactionHash
+  let receipt = await chainJsonProviders[fromChainId].waitForTransaction(
+    fromSwapWithdraw.getValue().transactionHash
   );
+  console.log("fromSwapWithdraw receipt: ", receipt);
 
   // reconcile deposit on from chain
-  setLog('(4/7) Reconciling deposit')
+  setLog("(4/7) Reconciling deposit");
   const fromSwapDepositRes = await node.reconcileDeposit({
     channelAddress: fromChannel.channelAddress,
     assetId: fromTokenPair,
@@ -224,6 +216,7 @@ export const swap = async (
     throw channelStateRes.getError();
   }
   fromChannel = channelStateRes.getValue();
+  console.log("fromChannel: ", fromChannel);
   const postFromSwapBalance = getBalanceForAssetId(
     fromChannel,
     fromTokenPair,
@@ -232,7 +225,7 @@ export const swap = async (
   console.log("postFromSwapBalance: ", postFromSwapBalance);
 
   // transfer cross chain
-  setLog('(5/7) Transferring cross chain')
+  setLog("(5/7) Transferring cross chain");
   const preImage = getRandomBytes32();
   const lockHash = utils.soliditySha256(["bytes32"], [preImage]);
   const routingId = getRandomBytes32();
@@ -251,14 +244,18 @@ export const swap = async (
     },
     recipient: node.publicIdentifier,
     recipientChainId: toChainId,
+    recipientAssetId: toToken,
   });
 
   // await transfer event
+  console.log(`Waiting for transfer creation on channel ${toChannel.channelAddress}`);
   const toTransferData = await new Promise((res) => {
-    node.once("CONDITIONAL_TRANSFER_CREATED", (data) => {
+    node.on("CONDITIONAL_TRANSFER_CREATED", (data) => {
       console.log("CONDITIONAL_TRANSFER_CREATED data: ", data);
       if (res.channelAddress === toChannel.channelAddress) {
         res(data);
+      } else {
+        console.log("Wrong channel address for transfer, waiting...");
       }
     });
   });
@@ -277,6 +274,22 @@ export const swap = async (
   const resolve = resolveRes.getValue();
   console.log("resolve: ", resolve);
 
+  // get updated channel balance
+  channelStateRes = await node.getStateChannel({
+    channelAddress: toChannel.channelAddress,
+  });
+  if (channelStateRes.isError) {
+    throw channelStateRes.getError();
+  }
+  toChannel = channelStateRes.getValue();
+  console.log("toChannel: ", toChannel);
+  const postCrossChainTransferBalance = getBalanceForAssetId(
+    toChannel,
+    toToken,
+    "bob"
+  );
+  console.log("postCrossChainTransferBalance: ", postCrossChainTransferBalance);
+
   // withdraw with swap data
   const toChainIdHelperContract = new Contract(
     withdrawHelpers[fromChainId],
@@ -285,7 +298,7 @@ export const swap = async (
   );
   console.log("Generating toChain swap");
   const toSwapData = await toChainIdHelperContract.getCallData({
-    amountIn: swapAmount.toString(),
+    amountIn: postCrossChainTransferBalance,
     amountOutMin: 1, // TODO: maybe change this, but this will make the swap always succeed
     router: uniswapRouters[toChainId],
     to: toChannel.channelAddress,
@@ -294,7 +307,7 @@ export const swap = async (
     path: [toToken, toTokenPair],
   });
   console.log("toSwapData: ", toSwapData);
-  setLog('(6/7) Swapping')
+  setLog("(6/7) Swapping");
   const toSwapWithdraw = await node.withdraw({
     assetId: toTokenPair,
     amount: swapAmount.toString(),
@@ -308,16 +321,11 @@ export const swap = async (
   }
   console.log(`To swap withdraw complete: `, toSwapWithdraw.getValue());
 
-  // await withdrawal event
-  const toWithdrawalData = await new Promise((res) => {
-    node.once("WITHDRAWAL_RECONCILED", (data) => {
-      console.log("WITHDRAWAL_RECONCILED data: ", data);
-      res(data);
-    });
-  });
-
   // make sure tx is sent
-  await chainJsonProviders[toChainId].waitFor(toWithdrawalData.transactionHash);
+  receipt = await chainJsonProviders[toChainId].waitForTransaction(
+    toSwapWithdraw.getValue().transactionHash
+  );
+  console.log("toSwapWithdraw receipt: ", receipt);
 
   // reconcile deposit on toChain
   const toSwapDepositRes = await node.reconcileDeposit({
@@ -336,11 +344,8 @@ export const swap = async (
     throw channelStateRes.getError();
   }
   toChannel = channelStateRes.getValue();
-  const posttoSwapBalance = getBalanceForAssetId(
-    toChannel,
-    toToken,
-    "bob"
-  );
+  console.log("toChannel: ", toChannel);
+  const posttoSwapBalance = getBalanceForAssetId(toChannel, toTokenPair, "bob");
   console.log("posttoSwapBalance: ", posttoSwapBalance);
 
   // withdraw to address
@@ -353,6 +358,6 @@ export const swap = async (
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
   }
-  setLog('(7/7) Swapping')
+  setLog("(7/7) Swapping");
   console.log(`To withdraw complete: `, toWithdraw.getValue());
 };
