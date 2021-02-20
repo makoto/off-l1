@@ -170,7 +170,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     </ActionContainer>
                     {log && (
                       <div>
-                        <BlinkingValue value ={`Current status: ${log}`} />
+                        Current status: ${log}
                       </div>
                     )}
                   </>
