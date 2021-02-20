@@ -251,8 +251,8 @@ export const swap = async (
   console.log(`Waiting for transfer creation on channel ${toChannel.channelAddress}`);
   const toTransferData = await new Promise((res) => {
     node.on("CONDITIONAL_TRANSFER_CREATED", (data) => {
-      console.log("CONDITIONAL_TRANSFER_CREATED data: ", data);
-      if (res.channelAddress === toChannel.channelAddress) {
+      console.log("CONDITIONAL_TRANSFER_CREATED data: ", {data, toChannel});
+      if (data.channelAddress === toChannel.channelAddress) {
         res(data);
       } else {
         console.log(`Got transfer for ${res.channelAddress}, waiting for ${toChannel.channelAddress}`);
