@@ -292,7 +292,7 @@ export const swap = async (
 
   // withdraw with swap data
   const toChainIdHelperContract = new Contract(
-    withdrawHelpers[fromChainId],
+    withdrawHelpers[toChainId],
     UniswapWithdrawHelper.abi,
     chainJsonProviders[toChainId]
   );
