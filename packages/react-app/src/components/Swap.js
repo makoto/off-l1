@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Note, Image, IconImage, Link, InternalLink, Input, ActionContainer } from "../components";
 import { useParams } from "react-router-dom";
@@ -6,6 +6,7 @@ import styled from "styled-components";
 import { getTokenBalance, getQuote, displayNumber } from "../utils"
 import { ethers } from "ethers";
 import { getChannelsForChains, initNode, swap } from '../connext'
+import BlinkingValue from './BlinkingValue'
 
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
@@ -20,6 +21,24 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
   const [quote, setQuote] = useState(false);
   const [log, setLog] = useState(false);
   const { from, to, symbol } = useParams();
+
+  useEffect(() => {
+    if(log){
+      getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
+        setFromTokenBalance(b);
+      });
+      getTokenBalance(fromExchange.rpcUrl, fromTokenPair, account).then((b) => {
+        setFromTokenPairBalance(b);
+      });
+      getTokenBalance(toExchange.rpcUrl, toToken, account).then((b) => {
+        setToTokenBalance(b);
+      });
+      getTokenBalance(toExchange.rpcUrl, toTokenPair, account).then((b) => {
+        setToTokenPairBalance(b);
+      });
+    }
+  }, [log]);
+
   if(chainInfos && chainInfos.length > 0){
   }else{
     return('')
@@ -67,17 +86,17 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
           Your token balance
           <ul>
             <li>
-              {fromTokenBalance} ${fromSymbol} on {fromExchange.name}
+              <BlinkingValue value={fromTokenBalance}/> ${fromSymbol} on {fromExchange.name}
             </li>
             <li>
-              {fromTokenPairBalance} ${symbol} on {fromExchange.name}
+              <BlinkingValue value={toTokenBalance}/> ${symbol} on {fromExchange.name}
             </li>
 
             <li>
-              {toTokenBalance} ${symbol} on {toExchange.name}
+              <BlinkingValue value={toTokenBalance}/> ${symbol} on {toExchange.name}
             </li>
             <li>
-              {toTokenPairBalance} ${fromSymbol} on {toExchange.name}
+              <BlinkingValue value={toTokenPairBalance}/> ${fromSymbol} on {toExchange.name}
             </li>
 
           </ul>
@@ -110,7 +129,11 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     {displayNumber(quote[0].formatted)} ${fromSymbol} is {displayNumber(quote[1].formatted)} ${symbol} on {fromExchange.name} <br/>
                     {displayNumber(quote[2].formatted)} ${symbol} is {displayNumber(quote[3].formatted)} ${fromSymbol} on {toExchange.name} <br/>
                     <Note>
-                      (Profit: {displayNumber(quote[2].formatted - quote[3].formatted)} ${fromSymbol})
+                      (Profit:
+                        <BlinkingValue
+                          value={displayNumber(quote[2].formatted - quote[3].formatted)}
+                        />${fromSymbol}
+                      )
                     </Note>
                     <ActionContainer>
                       {
@@ -147,7 +170,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     </ActionContainer>
                     {log && (
                       <div>
-                        Current status: {log}
+                        <BlinkingValue value ={`Current status: ${log}`} />
                       </div>
                     )}
                   </>
