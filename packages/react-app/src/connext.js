@@ -255,7 +255,7 @@ export const swap = async (
       if (res.channelAddress === toChannel.channelAddress) {
         res(data);
       } else {
-        console.log("Wrong channel address for transfer, waiting...");
+        console.log(`Got transfer for ${res.channelAddress}, waiting for ${toChannel.channelAddress}`);
       }
     });
   });
