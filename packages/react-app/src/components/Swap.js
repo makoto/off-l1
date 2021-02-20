@@ -71,7 +71,6 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
       setToTokenPairBalance(b);
     });
   }
-
   return (
     <Body>
       <h3>
@@ -89,7 +88,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
               <BlinkingValue value={fromTokenBalance}/> ${fromSymbol} on {fromExchange.name}
             </li>
             <li>
-              <BlinkingValue value={toTokenBalance}/> ${symbol} on {fromExchange.name}
+              <BlinkingValue value={fromTokenPairBalance}/> ${symbol} on {fromExchange.name}
             </li>
 
             <li>
@@ -138,31 +137,33 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
                     <ActionContainer>
                       {
                         currentChain?.name === fromExchange?.name ? (
-                          <>
-                          <Button
-                          onClick={(e) => {
-                            // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
-                            console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
-                            // debugger
-                            const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
-                            console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
-                            swap(
-                              normalizedAmount,
-                              fromToken.id,
-                              fromTokenPair.id,
-                              toToken.id,
-                              toTokenPair.id,
-                              fromExchange.chainId,
-                              toExchange.chainId,
-                              connextNode,
-                              provider,
-                              setLog
-                            )
-                          }}
-                        >
-                          Swap
-                        </Button>
-                        </>
+                          (parseFloat(fromTokenBalance) - amount > 0) ? (
+                            <Button
+                              onClick={(e) => {
+                                // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+                                console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
+                                // debugger
+                                const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
+                                console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
+                                swap(
+                                  normalizedAmount,
+                                  fromToken.id,
+                                  fromTokenPair.id,
+                                  toToken.id,
+                                  toTokenPair.id,
+                                  fromExchange.chainId,
+                                  toExchange.chainId,
+                                  connextNode,
+                                  provider,
+                                  setLog
+                                )
+                              }}
+                            >
+                              Swap
+                            </Button>  
+                          ) : (
+                            <Note>Not enough ${fromSymbol} on {fromExchange.name} to Continue </Note>  
+                          )
                         ) : (
                           <Note>Please connect to {fromExchange?.name} network to Continue </Note>
                         )

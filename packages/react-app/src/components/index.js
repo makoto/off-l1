@@ -4,7 +4,6 @@ import {
 } from "react-router-dom";
 
 export const Note = styled.p`
-  font-size: medium;
   color: grey;
 `
 
