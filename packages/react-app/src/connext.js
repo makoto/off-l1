@@ -296,16 +296,19 @@ export const swap = async (
     UniswapWithdrawHelper.abi,
     chainJsonProviders[toChainId]
   );
-  console.log("Generating toChain swap");
-  const toSwapData = await toChainIdHelperContract.getCallData({
+  const toSwapDataOption = {
     amountIn: postCrossChainTransferBalance,
     amountOutMin: 1, // TODO: maybe change this, but this will make the swap always succeed
     router: uniswapRouters[toChainId],
     to: toChannel.channelAddress,
     tokenA: toToken,
     tokenB: toTokenPair,
-    path: [toToken, toTokenPair],
+    path: [toToken, toTokenPair]
+  }
+  console.log("Generating toChain swap", {
+    toSwapDataOption
   });
+  const toSwapData = await toChainIdHelperContract.getCallData(toSwapDataOption);
   console.log("toSwapData: ", toSwapData);
   setLog("(6/7) Swapping");
   const toSwapWithdraw = await node.withdraw({
