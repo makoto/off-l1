@@ -74,13 +74,13 @@ export const getChannelsForChains = async (fromChainId, toChainId, node) => {
   }
 
   const toChannelRes = await node.getStateChannelByParticipants({
-    chainId: fromChainId,
+    chainId: toChainId,
     counterparty: routerPublicIdentifier,
   });
   if (toChannelRes.isError) {
     throw toChannelRes.getError();
   }
-  let toChannel = fromChannelRes.getValue();
+  let toChannel = toChannelRes.getValue();
   console.log("toChannel: ", toChannel);
   if (!toChannel) {
     const res = await node.setup({
