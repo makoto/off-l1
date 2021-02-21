@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import { Body, Button, Note, Image, IconImage, Link, InternalLink, Input, ActionContainer } from "../components";
+import { Body, Button, Note, Image, IconImage, Link, InternalLink, Input, ActionContainer, WarningContainer } from "../components";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getTokenBalance, getQuote, displayNumber } from "../utils"
@@ -38,7 +38,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       });
     }
   }, [log]);
-
+  console.log('***log', {
+    from, to
+  })
   if(chainInfos && chainInfos.length > 0){
   }else{
     return('')
@@ -71,6 +73,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       setToTokenPairBalance(b);
     });
   }
+  // if(fromTokenBalance){
+  //   debugger
+  // }
   return (
     <Body>
       <h3>
@@ -80,22 +85,25 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
         ->
         <IconImage src={toExchange.chainIcon} />${symbol} x $USDC<IconImage src={toExchange.exchangeIcon} />
       </h3>
+      <Note style={{fontSize:'small'}}>
+        <InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`} >(Switch Direction)</InternalLink>
+      </Note>
       {chainId && fromToken && toToken && (
         <>
           Your token balance
           <ul>
             <li>
-              <BlinkingValue value={fromTokenBalance}/> ${fromSymbol} on {fromExchange.name}
+              <BlinkingValue value={displayNumber(fromTokenBalance)}/> ${fromSymbol} on {fromExchange.name}
             </li>
             <li>
-              <BlinkingValue value={fromTokenPairBalance}/> ${symbol} on {fromExchange.name}
+              <BlinkingValue value={displayNumber(fromTokenPairBalance)}/> ${symbol} on {fromExchange.name}
             </li>
 
             <li>
-              <BlinkingValue value={toTokenBalance}/> ${symbol} on {toExchange.name}
+              <BlinkingValue value={displayNumber(toTokenBalance)}/> ${symbol} on {toExchange.name}
             </li>
             <li>
-              <BlinkingValue value={toTokenPairBalance}/> ${fromSymbol} on {toExchange.name}
+              <BlinkingValue value={displayNumber(toTokenPairBalance)}/> ${fromSymbol} on {toExchange.name}
             </li>
 
           </ul>
@@ -130,7 +138,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     <Note>
                       (Profit:
                         <BlinkingValue
-                          value={displayNumber(quote[2].formatted - quote[3].formatted)}
+                          value={displayNumber((quote[2].formatted - quote[3].formatted), 5)}
                         />${fromSymbol}
                       )
                     </Note>
@@ -138,29 +146,40 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                       {
                         currentChain?.name === fromExchange?.name ? (
                           (parseFloat(fromTokenBalance) - amount > 0) ? (
-                            <Button
-                              onClick={(e) => {
-                                // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
-                                console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
-                                // debugger
-                                const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
-                                console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
-                                swap(
-                                  normalizedAmount,
-                                  fromToken.id,
-                                  fromTokenPair.id,
-                                  toToken.id,
-                                  toTokenPair.id,
-                                  fromExchange.chainId,
-                                  toExchange.chainId,
-                                  connextNode,
-                                  provider,
-                                  setLog
-                                )
-                              }}
-                            >
-                              Swap
-                            </Button>  
+                            <>
+                              <WarningContainer>
+                                <h3>Warning</h3>
+                                <p style={{width:'80%', margin:'1em auto'}}>
+                                This project is submitted for hackathon prototype and not ready for the primte time.
+                                Do not spend more than $1 to try out. It will stop working when it runs out of liquidity on the router.
+                                Learn more at <Link href="https://docs.connext.network/router-basics">Connext website</Link>
+                                </p>
+                                <Button
+                                    onClick={(e) => {
+                                      // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+                                      console.log({fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair})
+                                      // debugger
+                                      const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
+                                      console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
+                                      swap(
+                                        normalizedAmount,
+                                        fromToken.id,
+                                        fromTokenPair.id,
+                                        toToken.id,
+                                        toTokenPair.id,
+                                        fromExchange.chainId,
+                                        toExchange.chainId,
+                                        connextNode,
+                                        provider,
+                                        setLog
+                                      )
+                                    }}
+                                  >
+                                    Swap
+                                </Button>
+                              </WarningContainer>
+                            </>
+
                           ) : (
                             <Note>Not enough ${fromSymbol} on {fromExchange.name} to Continue </Note>  
                           )
@@ -171,7 +190,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     </ActionContainer>
                     {log && (
                       <div>
-                        Current status: ${log}
+                        Current status: {log}
                       </div>
                     )}
                   </>

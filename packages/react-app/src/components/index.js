@@ -5,10 +5,16 @@ import {
 
 export const Note = styled.p`
   color: grey;
+  margin: 5px;
 `
 
 export const ActionContainer = styled.p`
    margin: 1em;
+`
+
+export const WarningContainer = styled.p`
+  color: orange;
+  text-align: center;
 `
 
 export const Header = styled.header`

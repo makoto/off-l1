@@ -23,6 +23,9 @@ a{
   margin-top: 10px;  
 }
 
+h3{
+  margin: 0 0.5em;
+}
 
 /* starting ENTER animation */
 .messageout-enter {

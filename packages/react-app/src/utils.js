@@ -81,8 +81,16 @@ export async function getQuote(
     to:toTokenPair  
   })
   window.ethers = ethers
+  debugger
   const formatted = ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals)
   const newRawAmount = ethers.utils.parseUnits(formatted, toToken.decimals)
+  console.log('***getQuote1.2',{    
+    formatted,
+    newRawAmount,
+    from:toToken,
+    to:toTokenPair
+  })
+
   const reverseQuotes = await toRouter.getAmountsOut(newRawAmount, [toToken.id, toTokenPair.id])
   // debugger
   return [
@@ -125,6 +133,6 @@ export async function getDai(){
   return await result.json()
 }
 
-export function displayNumber(n){
-  return parseFloat(n).toFixed(3)
+export function displayNumber(n, digits =3){
+  return parseFloat(n).toFixed(digits)
 }
