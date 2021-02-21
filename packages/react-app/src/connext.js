@@ -115,6 +115,8 @@ export const swap = async (
   provider,
   setLog
 ) => {
+  const signer = await provider.getSigner();
+  const signerAddress = await signer.getAddress();
   console.log(`Starting swap: `, {
     swapAmount,
     fromToken,
@@ -362,7 +364,7 @@ export const swap = async (
     assetId: toTokenPair,
     amount: posttoSwapBalance,
     channelAddress: toChannel.channelAddress,
-    recipient: provider.getSigner().address,
+    recipient: signerAddress,
   });
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
