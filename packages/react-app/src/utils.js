@@ -2,6 +2,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { abis } from "@project/contracts";
 import { ethers } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 const MAX_AMOUNT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 const ZERO_AMOUNT = '0x'
 
@@ -33,18 +34,79 @@ export async function getTokenAllowance(exchange, token, ownerAddress){
 
 export async function approveToken(exchange, token){
   const endpoint = exchange.rpcUrl
-  const tokenAddress = token.id
   const provider = new JsonRpcProvider(endpoint)
+  const tokenAddress = token.id
   const erc20 = new Contract(tokenAddress, abis.erc20, provider);
   await erc20.approve(exchange.exchangeRouterAddress, MAX_AMOUNT);
 }
 
 export async function revokeToken(exchange, token){
   const endpoint = exchange.rpcUrl
-  const tokenAddress = token.id
   const provider = new JsonRpcProvider(endpoint)
+  const tokenAddress = token.id
   const erc20 = new Contract(tokenAddress, abis.erc20, provider);
   await erc20.decreaseAllowance(exchange.exchangeRouterAddress, ZERO_AMOUNT);
+}
+
+function getRouter(exchange){
+  const provider = new JsonRpcProvider(exchange.rpcUrl)
+  return new Contract(exchange.exchangeRouterAddress, abis.router, provider);
+}
+
+export async function getQuote(
+  fromExchange,
+  toExchange,
+  fromToken,
+  fromTokenPair,
+  toToken,
+  toTokenPair,
+  amount
+){
+  const fromRouter = getRouter(fromExchange)
+  const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+  console.log('***getQuote0', {
+    amount:amount.toString(),
+    rawAmount,
+    from:fromToken,
+    to:fromTokenPair
+  })
+  const baseQuotes = await fromRouter.getAmountsOut(rawAmount, [fromToken.id, fromTokenPair.id])
+
+  const toRouter = getRouter(toExchange)
+  console.log('***getQuote1.1',{    
+    baseQuotes,
+    rawAmount:baseQuotes[1],
+    rawAmount2:baseQuotes[1].toString(),
+    from:toToken,
+    to:toTokenPair  
+  })
+  window.ethers = ethers
+  const formatted = ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals)
+  const newRawAmount = ethers.utils.parseUnits(formatted, toToken.decimals)
+  const reverseQuotes = await toRouter.getAmountsOut(newRawAmount, [toToken.id, toTokenPair.id])
+  // debugger
+  return [
+    {
+      raw:baseQuotes[0],
+      formatted:ethers.utils.formatUnits(baseQuotes[0], fromToken.decimals),
+      decimals:fromToken.decimals
+    },
+    {
+      raw:baseQuotes[1],
+      formatted:ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals),
+      decimals:toToken.decimals
+    },
+    {
+      raw:reverseQuotes[0],
+      formatted:ethers.utils.formatUnits(reverseQuotes[0], toToken.decimals),
+      decimals:fromToken.decimals
+    },
+    {
+      raw:reverseQuotes[1],
+      formatted:ethers.utils.formatUnits(reverseQuotes[1], toTokenPair.decimals),
+      decimals:toToken.decimals
+    }
+  ]
 }
 
 export async function getBNB(){
@@ -61,4 +123,8 @@ export async function getEth(){
 export async function getDai(){
   const result = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=dai&vs_currencies=usd`)
   return await result.json()
+}
+
+export function displayNumber(n){
+  return parseFloat(n).toFixed(3)
 }

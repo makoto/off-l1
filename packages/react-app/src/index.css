@@ -22,3 +22,29 @@ a{
   color: #ffe2d1;
   margin-top: 10px;  
 }
+
+
+/* starting ENTER animation */
+.messageout-enter {
+  position: absolute;
+  top: 0;
+}
+
+/* ending ENTER animation */
+.messageout-enter-active {
+  opacity: 1;
+  transition: all 2s ease-in-out;
+}
+
+/* starting EXIT animation */
+.messageout-exit {
+  opacity: 1;
+  color: orange;
+  transition: all 2s ease-in-out;
+}
+
+/* ending EXIT animation */
+.messageout-exit-active {
+  opacity: 0.5;
+  transition: all 2s ease-in-out;
+}

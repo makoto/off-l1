@@ -3,6 +3,14 @@ import {
   Link as RouterLink
 } from "react-router-dom";
 
+export const Note = styled.p`
+  color: grey;
+`
+
+export const ActionContainer = styled.p`
+   margin: 1em;
+`
+
 export const Header = styled.header`
   background-color: #ffe2d1;
   color: black;
@@ -62,9 +70,8 @@ export const Button = styled.button`
   margin: 0px 20px;
   padding: 12px 24px;
 
-  ${props => props.hidden && "hidden"} :focus {
-    border: none;
-    outline: none;
+  ${props => props.disabled && "disabled"} :{
+    opacity:0.5;
   }
 `;
 

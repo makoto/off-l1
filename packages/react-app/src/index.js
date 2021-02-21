@@ -4,12 +4,19 @@ import ApolloClient from "apollo-boost";
 import { ApolloProvider } from "@apollo/react-hooks";
 import "./index.css";
 import App from "./App";
+import bsc from "./assets/bsc.png";
+import pancake from "./assets/pancake.png";
+import matic from "./assets/matic.png";
+import quick from "./assets/quick.png";
+import honey from "./assets/honey.png";
+import xdai from "./assets/xdai.png";
 
 // You should replace this url with your own and put it into a .env file
 // See all subgraphs: https://thegraph.com/explorer/
 
 const bscClient = new ApolloClient({
   uri: "https://api.bscgraph.org/subgraphs/name/cakeswap"
+  // uri: "https://info.burgerswap.org/subgraphs/name/burgerswap/platform"
 });
 
 const maticClient = new ApolloClient({
@@ -22,37 +29,42 @@ const xdaiClient = new ApolloClient({
 
 const chainInfos = [{
   chainId:56,
+  chainIcon: bsc,
   name:'BSC',
   client:bscClient,
   tokenSymbol:'BNB',
   tokenAddress:'0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
   exchangeName:'Pancake',
-  exchangeIcon:'https://pancakeswap.info/favicon.png',
+  exchangeIcon: pancake,
+
   explorerUrl:'https://bscscan.com',
-  exchangeRouterAddress:'',
+  exchangeRouterAddress:'0x05ff2b0db69458a0750badebc4f9e13add608c7f',
   rpcUrl: 'https://bsc-dataseed1.defibit.io'
 },{
   chainId:137,
+  chainIcon: matic,
   name:'Matic',
   client:maticClient,
   tokenSymbol:'MATIC',
   tokenAddress:'0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
   exchangeName:'Quick',
-  exchangeIcon:'https://quickswap.exchange/logo_circle.png',
+  exchangeIcon:quick,
   exchangeRouterAddress:'0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
   explorerUrl:'https://explorer-mainnet.maticvigil.com',
   rpcUrl: 'https://rpc-mainnet.matic.network'
 },{
   chainId:100,
+  chainIcon:xdai,
   name:'xDai',
   client:xdaiClient,
   tokenSymbol:'xDAI',
   tokenAddress:'0x6b175474e89094c44da98b954eedeac495271d0f',
   exchangeName:'Honey',
-  exchangeIcon:'https://honeyswap.org/images/favicon.svg',
-  exchangeRouterAddress:'',
+  exchangeIcon:honey,
+  exchangeRouterAddress:'0x1C232F01118CB8B424793ae03F870aa7D0ac7f77',
   explorerUrl:'https://blockscout.com/poa/xdai',
-  rpcUrl: 'https://rpc.xdaichain.com'
+  rpcUrl:'https://xdai.poanetwork.dev'
+  // rpcUrl: 'https://rpc.xdaichain.com'
 }]
 
 ReactDOM.render(

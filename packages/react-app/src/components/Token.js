@@ -4,7 +4,6 @@ import { Body, Button, Header, Image, IconImage, Link, InternalLink } from "../c
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { chain } from "lodash";
-
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
 `;
@@ -24,11 +23,12 @@ function Token({
       {combined.length === 0 ? (<>Loading...</>) : (
         chainInfos.map((c, i) => {
           return chainInfos.map((cc, ii) => {
-            if(c.name !== cc.name){
+            console.log(tokenData.data[i], {cc,ii})
+            if(tokenData.data[i] && tokenData.data[ii] && c.name !== cc.name){
               let cValue = tokenData.data[i].derivedETH * c.unitPrice
               let ccValue = tokenData.data[ii].derivedETH * cc.unitPrice
               let diff = ((ccValue - cValue) / ((cValue + ccValue) / 2)) * 100
-              if(diff > 0){
+              // if(diff > 0){
                 return(
                   <li>
                     <SwapLinkContainer>
@@ -43,8 +43,8 @@ function Token({
                       Swap
                     </InternalLink>
                   </li>
-                )  
-              }
+                )
+              // }
             }
           })
         })

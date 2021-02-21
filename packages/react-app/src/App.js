@@ -10,6 +10,9 @@ import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
+import pancakeData from './data/pancake.json'
+import honeyData from './data/honey.json'
+import quickData from './data/quick.json'
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
@@ -53,10 +56,16 @@ function App({chainInfos}) {
   const [ account, setAccount ] = useState(false);
   const [ balance, setBalance ] = useState(false);
   const [node, setNode] = useState(false);
+  const [ chainId, setChainId ] = useState(false);
+  // console.log('***honeyData', {honeyData})
   useEffect(() => {
     const init = async () => {
-      const _node = await initNode();
-      setNode(_node);
+      try{
+        const _node = await initNode();
+        setNode(_node);  
+      }catch(e){
+        console.log('Initiation error', {e})
+      }
     };
     init();
   }, []);
@@ -72,30 +81,32 @@ function App({chainInfos}) {
     setDaiPrice(r.dai.usd)
     chainInfos[2].unitPrice = r.dai.usd
   })
+  window.pancakeData =pancakeData
+  window.pancakeData.data.tokens.map(t => t.id)
+  // debugger
+  console.log(JSON.stringify(pancakeData.data.tokens.map(t => t.id)))
 
-  if(chainInfos.length === 3){
-    console.log(
-      chainInfos[0].name,bnbPrice,
-      chainInfos[1].name,ethPrice,
-      chainInfos[2].name,daiPrice
-    )
-  }
-
-  const { loading, error, data } = useQuery(TOKEN_DATA, {
-    client:chainInfos[0].client
+  let { loading, error, data } = useQuery(TOKEN_DATA, {
+    client:chainInfos[0].client,
+    variables:{
+      tokenIds:pancakeData.data.tokens.map(t => t.id)
+    },
   });
 
   const { loading:loading1, error:error1, data:data1 } = useQuery(TOKEN_DATA, {
-    client:chainInfos[1].client
+    client:chainInfos[1].client,
+    variables:{
+      tokenIds:quickData.data.tokens.map(t => t.id)
+    }
   });
   const { loading:loading2, error:error2, data:data2 } = useQuery(TOKEN_DATA, {
-    client:chainInfos[2].client
+    client:chainInfos[2].client,
+    variables:{
+      tokenIds:honeyData.data.tokens.map(t => t.id)
+    }
   });
-  console.log({
-    data, data1, data2
-  })
   let combined = []
-  if(data && data2){
+  if(data1 && data2){
     for (let i = 0; i < data?.tokens?.length; i++) {
       const d = data?.tokens[i];
       d.exchangeName = chainInfos[0].exchangeName
@@ -126,10 +137,11 @@ function App({chainInfos}) {
           for (let k = 0; k < data1?.tokens?.length; k++) {
             const d1 = data1?.tokens[k];
             d1.exchangeName = chainInfos[1].exchangeName
-            if(d.symbol === d1.symbol){
+            if(d1.symbol === d2.symbol){
               combined.push({
-                symbol:d.symbol,
+                symbol:d1.symbol,
                 data:[d, d1, d2]
+                // data:[null, d1, d2]
               })    
             }
           }
@@ -137,39 +149,25 @@ function App({chainInfos}) {
       }
     }
   }
-  console.log({combined})
-  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-  const [showModal, setShowModal] = React.useState(false);
-  // React.useEffect(() => {
-  //   if (!loading && !error && data && data.transfers) {
-  //     console.log({ transfers: data.transfers });
-  //   }
-  // }, [loading, error, data]);
-
-  // return (
-  //   <>
-  //     <button onClick={() => setShowModal(true)}>Hello World</button>
-  //     <ConnextModal
-  //       showModal={showModal}
-  //       onClose={() => setShowModal(false)}
-  //       onReady={params => console.log('MODAL IS READY =======>', params)}
-  //       depositAddress={''}
-  //       withdrawalAddress={'0x5A384227B65FA093DEC03Ec34e111Db80A040615'}
-  //       routerPublicIdentifier="vector7tbbTxQp8ppEQUgPsbGiTrVdapLdU5dH7zTbVuXRf1M4CEBU9Q"
-  //       depositAssetId={'0xbd69fC70FA1c3AED524Bb4E82Adc5fcCFFcD79Fa'}
-  //       depositChainId={5}
-  //       depositChainProvider="https://goerli.infura.io/v3/10c3a0fa44b94deba2a896658844a49c"
-  //       withdrawAssetId={'0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1'}
-  //       withdrawChainId={80001}
-  //       withdrawChainProvider="https://rpc-mumbai.matic.today"
-  //     />
-  //   </>
-  // );
-
-  const chainId = provider?._network?.chainId
-  if(provider?._network?.chainId){
-    window.provider = provider
+  let networkName
+  if(window.location.href.match(/\/exchanges\/Quick/)){
+    networkName = 'matic'
+  }else if (window.location.href.match(/\/exchanges\/Honey/)){
+    networkName = 'xdai'
+  }else if (window.location.href.match(/\/exchanges\/Pancake/)){
+    networkName = 'bsc'
   }
+
+  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal({
+    NETWORK:networkName
+  });
+
+  if(provider){
+    provider.getNetwork().then(({chainId}) => {
+      setChainId(chainId)
+    })
+  }
+  window.provider = provider
   let currentChain, balanceToDisplay
   if(chainId){
     currentChain = chainInfos.filter(c => c.chainId === chainId )[0]
@@ -191,52 +189,57 @@ function App({chainInfos}) {
   }
   return (
     <Router>
-    <div>
-      <Header>
-        <Link
-          to={`/`}
-          style={{ textDecoration: 'none', fontSize:'xx-large' }}
-        >🐰</Link>
-        <NetworkContainer>
-          {currentChain && (
-            <div>
-              Connected to { currentChain.name } as { account.slice(0,5) }... ({balanceToDisplay} ${currentChain.tokenSymbol})
-            </div>
-          )}
-          <WalletButton provider={provider} loadWeb3Modal={loadWeb3Modal} logoutOfWeb3Modal={logoutOfWeb3Modal} />
-        </NetworkContainer>
-      </Header>
-      <Switch>
-        <Route path="/token/:symbol">
-          <Token
-            chainInfos={chainInfos}
-            combined={combined}
-          />
-        </Route>
-        <Route path="/exchanges/:from-:to/token/:symbol">
-          <Swap
-            chainInfos={chainInfos}
-            currentChain={currentChain}
-            combined={combined}
-            account={account}
-          />
-        </Route>
-        <Route path="/about">
-          <About />
-        </Route>
-        <Route path="/users">
-          <Users />
-        </Route>
-        <Route path="/">
-          <Home
-            chainInfos={chainInfos}
-            combined={combined}
-          />
-        </Route>
-      </Switch>
-    </div>
+      <div>
+        <Header>
+          <Link
+            to={`/`}
+            style={{ textDecoration: "none", fontSize: "xx-large" }}
+          >
+            🐰
+          </Link>
+          <NetworkContainer>
+            {chainId && (
+              (currentChain) ? (
+                <div>
+                  Connected to {currentChain.name} as {account?.slice(0, 5)}... (
+                  {balanceToDisplay} ${currentChain.tokenSymbol})
+                </div>
+              ) : (`Unsupported Network`)
+            )}
+            <WalletButton
+              provider={provider}
+              loadWeb3Modal={loadWeb3Modal}
+              logoutOfWeb3Modal={logoutOfWeb3Modal}
+            />
+          </NetworkContainer>
+        </Header>
+        <Switch>
+          <Route path="/token/:symbol">
+            <Token chainInfos={chainInfos} combined={combined} />
+          </Route>
+          <Route path="/exchanges/:from-:to/token/:symbol">
+            <Swap
+              chainId={chainId}
+              chainInfos={chainInfos}
+              currentChain={currentChain}
+              combined={combined}
+              account={account}
+              connextNode={node}
+              provider={provider}
+            />
+          </Route>
+          <Route path="/about">
+            <About />
+          </Route>
+          <Route path="/users">
+            <Users />
+          </Route>
+          <Route path="/">
+            <Home chainInfos={chainInfos} combined={combined} />
+          </Route>
+        </Switch>
+      </div>
     </Router>
-
   );
 }
 
