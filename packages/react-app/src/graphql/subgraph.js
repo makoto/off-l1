@@ -1,11 +1,11 @@
 import { gql } from "apollo-boost";
 
 export const TOKEN_DATA = gql`
-  query {
+  query($tokenIds:[String]){
     tokens(first:50, orderBy:tradeVolumeUSD, orderDirection: desc, where:{
       totalLiquidity_gt:10,
       tradeVolume_gt:1,
-      symbol_in:["USDC", "USDT", "DAI", "UNI"]
+      id_in:$tokenIds
     }){
       id,
       symbol,

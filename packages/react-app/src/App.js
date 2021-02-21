@@ -10,9 +10,9 @@ import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
-// import pancakeData from './data/pancake.json'
-// import honeyData from './data/honey.json'
-// import quickData from './data/quick.json'
+import pancakeData from './data/pancake.json'
+import honeyData from './data/honey.json'
+import quickData from './data/quick.json'
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
@@ -81,16 +81,29 @@ function App({chainInfos}) {
     setDaiPrice(r.dai.usd)
     chainInfos[2].unitPrice = r.dai.usd
   })
+  window.pancakeData =pancakeData
+  window.pancakeData.data.tokens.map(t => t.id)
+  // debugger
+  console.log(JSON.stringify(pancakeData.data.tokens.map(t => t.id)))
 
-  const { loading, error, data } = useQuery(TOKEN_DATA, {
-    client:chainInfos[0].client
+  let { loading, error, data } = useQuery(TOKEN_DATA, {
+    client:chainInfos[0].client,
+    variables:{
+      tokenIds:pancakeData.data.tokens.map(t => t.id)
+    },
   });
 
   const { loading:loading1, error:error1, data:data1 } = useQuery(TOKEN_DATA, {
-    client:chainInfos[1].client
+    client:chainInfos[1].client,
+    variables:{
+      tokenIds:quickData.data.tokens.map(t => t.id)
+    }
   });
   const { loading:loading2, error:error2, data:data2 } = useQuery(TOKEN_DATA, {
-    client:chainInfos[2].client
+    client:chainInfos[2].client,
+    variables:{
+      tokenIds:honeyData.data.tokens.map(t => t.id)
+    }
   });
   let combined = []
   if(data1 && data2){

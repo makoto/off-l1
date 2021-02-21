@@ -1,0 +1,76 @@
+{
+    "data": {
+      "tokens": [
+        {
+          "decimals": "6",
+          "derivedETH": "0.0005262862496172813584571380676715753",
+          "id": "0x2791bca1f2de4661ed88a30c99a7a9449aa84174",
+          "symbol": "USDC",
+          "totalLiquidity": "3200561.701177",
+          "tradeVolumeUSD": "36421970.30740097685764065857145126",
+          "txCount": "434569",
+          "untrackedVolumeUSD": "36429635.92622200884537103934386918"
+        },
+        {
+          "decimals": "18",
+          "derivedETH": "0.106510686809247890093594431336616",
+          "id": "0x831753dd7087cac61ab5644b308642cc1c33dc13",
+          "symbol": "QUICK",
+          "totalLiquidity": "30803.686100142879277948",
+          "tradeVolumeUSD": "32672822.61586106876685193465843657",
+          "txCount": "304794",
+          "untrackedVolumeUSD": "36604534.1184696753262027899615195"
+        },
+        {
+          "decimals": "18",
+          "derivedETH": "0.0007300937084836879185039427102435696",
+          "id": "0x385eeac5cb85a38a9a07a70c73e0a3271cfb54a7",
+          "symbol": "GHST",
+          "totalLiquidity": "2622495.597927174115936899",
+          "tradeVolumeUSD": "15418818.7845614005319821317947087",
+          "txCount": "97755",
+          "untrackedVolumeUSD": "15418948.31423686436154785140180161"
+        },
+        {
+          "decimals": "18",
+          "derivedETH": "0.00008363010369660549250424285468807051",
+          "id": "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270",
+          "symbol": "WMATIC",
+          "totalLiquidity": "10124095.014844058437613611",
+          "tradeVolumeUSD": "13625908.28583111057954566734490235",
+          "txCount": "212437",
+          "untrackedVolumeUSD": "13617619.52745059500968978608930486"
+        },
+        {
+          "decimals": "18",
+          "derivedETH": "0.01632883052142546282867905185078048",
+          "id": "0xb33eaad8d922b1083446dc23f610c2567fb5180f",
+          "symbol": "UNI",
+          "totalLiquidity": "11784.348061272334931975",
+          "tradeVolumeUSD": "4971288.78701855830763336168655677",
+          "txCount": "67087",
+          "untrackedVolumeUSD": "4963217.176098554018785774010844857"
+        },
+        {
+          "decimals": "18",
+          "derivedETH": "0.0004979021797599279452468028841948252",
+          "id": "0x8f3cf7ad23cd3cadbd9735aff958023239c6a063",
+          "symbol": "DAI",
+          "totalLiquidity": "54907.284559961668133461",
+          "tradeVolumeUSD": "860123.7490687198337366653534049672",
+          "txCount": "60183",
+          "untrackedVolumeUSD": "860571.8461373783059308478533673451"
+        },
+        {
+          "decimals": "6",
+          "derivedETH": "0.0005052992907000195106349854174311962",
+          "id": "0xc2132d05d31c914a87c6611c10748aeb04b58e8f",
+          "symbol": "USDT",
+          "totalLiquidity": "2510.639893",
+          "tradeVolumeUSD": "354016.7742035519456751737478247085",
+          "txCount": "55115",
+          "untrackedVolumeUSD": "354016.2035462361518940131626255388"
+        }
+      ]
+    }
+  }
