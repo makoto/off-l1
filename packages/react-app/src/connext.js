@@ -248,14 +248,18 @@ export const swap = async (
   });
 
   // await transfer event
-  console.log(`Waiting for transfer creation on channel ${toChannel.channelAddress}`);
+  console.log(
+    `Waiting for transfer creation on channel ${toChannel.channelAddress}`
+  );
   const toTransferData = await new Promise((res) => {
     node.on("CONDITIONAL_TRANSFER_CREATED", (data) => {
-      console.log("CONDITIONAL_TRANSFER_CREATED data: ", {data, toChannel});
+      console.log("CONDITIONAL_TRANSFER_CREATED data: ", { data, toChannel });
       if (data.channelAddress === toChannel.channelAddress) {
         res(data);
       } else {
-        console.log(`Got transfer for ${res.channelAddress}, waiting for ${toChannel.channelAddress}`);
+        console.log(
+          `Got transfer for ${res.channelAddress}, waiting for ${toChannel.channelAddress}`
+        );
       }
     });
   });
@@ -303,12 +307,14 @@ export const swap = async (
     to: toChannel.channelAddress,
     tokenA: toToken,
     tokenB: toTokenPair,
-    path: [toToken, toTokenPair]
-  }
+    path: [toToken, toTokenPair],
+  };
   console.log("Generating toChain swap", {
-    toSwapDataOption
+    toSwapDataOption,
   });
-  const toSwapData = await toChainIdHelperContract.getCallData(toSwapDataOption);
+  const toSwapData = await toChainIdHelperContract.getCallData(
+    toSwapDataOption
+  );
   console.log("toSwapData: ", toSwapData);
   setLog("(6/7) Swapping");
   const toSwapWithdraw = await node.withdraw({
