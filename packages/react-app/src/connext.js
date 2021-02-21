@@ -339,7 +339,7 @@ export const swap = async (
   // reconcile deposit on toChain
   const toSwapDepositRes = await node.reconcileDeposit({
     channelAddress: toChannel.channelAddress,
-    assetId: toToken,
+    assetId: toTokenPair,
   });
   if (toSwapDepositRes.isError) {
     throw toSwapDepositRes.getError();
@@ -362,7 +362,7 @@ export const swap = async (
     assetId: toTokenPair,
     amount: posttoSwapBalance,
     channelAddress: toChannel.channelAddress,
-    recipient: provider.address,
+    recipient: provider.getSigner().address,
   });
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
