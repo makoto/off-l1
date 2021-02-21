@@ -25,6 +25,7 @@
     "@ethersproject/providers": "^5.0.12",
     "@honeyswap/sdk": "^2.0.8",
     "@pancakeswap-libs/sdk": "^1.0.1",
+    "@portis/web3": "^3.0.8",
     "@project/contracts": "^1.0.0",
     "@testing-library/dom": "^6.16.0",
     "@testing-library/jest-dom": "^4.2.4",
