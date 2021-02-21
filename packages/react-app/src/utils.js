@@ -2,6 +2,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import { abis } from "@project/contracts";
 import { ethers } from "ethers";
+import { formatUnits } from "ethers/lib/utils";
 const MAX_AMOUNT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 const ZERO_AMOUNT = '0x'
 
@@ -61,17 +62,28 @@ export async function getQuote(
   toTokenPair,
   amount
 ){
-  console.log('***getQuote0')
   const fromRouter = getRouter(fromExchange)
   const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
+  console.log('***getQuote0', {
+    amount:amount.toString(),
+    rawAmount,
+    from:fromToken,
+    to:fromTokenPair
+  })
   const baseQuotes = await fromRouter.getAmountsOut(rawAmount, [fromToken.id, fromTokenPair.id])
 
   const toRouter = getRouter(toExchange)
-  console.log('***getQuote1.1',
-    baseQuotes[1]
-  )
-
-  const reverseQuotes = await toRouter.getAmountsOut(baseQuotes[1], [toToken.id, toTokenPair.id])
+  console.log('***getQuote1.1',{    
+    baseQuotes,
+    rawAmount:baseQuotes[1],
+    rawAmount2:baseQuotes[1].toString(),
+    from:toToken,
+    to:toTokenPair  
+  })
+  window.ethers = ethers
+  const formatted = ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals)
+  const newRawAmount = ethers.utils.parseUnits(formatted, toToken.decimals)
+  const reverseQuotes = await toRouter.getAmountsOut(newRawAmount, [toToken.id, toTokenPair.id])
   // debugger
   return [
     {

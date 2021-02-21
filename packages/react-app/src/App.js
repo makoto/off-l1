@@ -10,6 +10,9 @@ import Swap from "./components/Swap";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
+// import pancakeData from './data/pancake.json'
+// import honeyData from './data/honey.json'
+// import quickData from './data/quick.json'
 
 import { addresses, abis } from "@project/contracts";
 import { TOKEN_DATA } from "./graphql/subgraph";
@@ -54,6 +57,7 @@ function App({chainInfos}) {
   const [ balance, setBalance ] = useState(false);
   const [node, setNode] = useState(false);
   const [ chainId, setChainId ] = useState(false);
+  // console.log('***honeyData', {honeyData})
   useEffect(() => {
     const init = async () => {
       try{
@@ -90,48 +94,48 @@ function App({chainInfos}) {
   });
   let combined = []
   if(data1 && data2){
-  //   for (let i = 0; i < data?.tokens?.length; i++) {
-  //     const d = data?.tokens[i];
-  //     d.exchangeName = chainInfos[0].exchangeName
-  //     if(d.symbol.match(/DAI/)){
-  //       console.log(0, d.symbol)
-  //     }
-  //     if(d.symbol.match(/BTC/)){
-  //       console.log(0, d.symbol)
-  //     }
-  //     if(d.symbol.match(/ETH/)){
-  //       console.log(0, d.symbol)
-  //     }
+    for (let i = 0; i < data?.tokens?.length; i++) {
+      const d = data?.tokens[i];
+      d.exchangeName = chainInfos[0].exchangeName
+      if(d.symbol.match(/DAI/)){
+        console.log(0, d.symbol)
+      }
+      if(d.symbol.match(/BTC/)){
+        console.log(0, d.symbol)
+      }
+      if(d.symbol.match(/ETH/)){
+        console.log(0, d.symbol)
+      }
 
       for (let j = 0; j < data2?.tokens?.length; j++) {
         const d2 = data2?.tokens[j];
         d2.exchangeName = chainInfos[2].exchangeName
-        // if(i == 0 && d2.symbol.match(/DAI/)){
-        //   console.log(2, d2.symbol)
-        // }
-        // if(i == 0 && d2.symbol.match(/BTC/)){
-        //   console.log(2, d2.symbol)
-        // }
-        // if(i == 0 && d2.symbol.match(/ETH/)){
-        //   console.log(2, d2.symbol)
-        // }
+        if(i == 0 && d2.symbol.match(/DAI/)){
+          console.log(2, d2.symbol)
+        }
+        if(i == 0 && d2.symbol.match(/BTC/)){
+          console.log(2, d2.symbol)
+        }
+        if(i == 0 && d2.symbol.match(/ETH/)){
+          console.log(2, d2.symbol)
+        }
   
-        // if(d.symbol === d2.symbol){
+        if(d.symbol === d2.symbol){
           for (let k = 0; k < data1?.tokens?.length; k++) {
             const d1 = data1?.tokens[k];
             d1.exchangeName = chainInfos[1].exchangeName
             if(d1.symbol === d2.symbol){
               combined.push({
                 symbol:d1.symbol,
-                // data:[d, d1, d2]
-                data:[null, d1, d2]
+                data:[d, d1, d2]
+                // data:[null, d1, d2]
               })    
             }
           }
-        // }
+        }
       }
     }
-  // }
+  }
   let networkName
   if(window.location.href.match(/\/exchanges\/Quick/)){
     networkName = 'matic'

@@ -15,8 +15,8 @@ import xdai from "./assets/xdai.png";
 // See all subgraphs: https://thegraph.com/explorer/
 
 const bscClient = new ApolloClient({
-  // uri: "https://api.bscgraph.org/subgraphs/name/cakeswap"
-  uri: "https://info.burgerswap.org/subgraphs/name/burgerswap/platform"
+  uri: "https://api.bscgraph.org/subgraphs/name/cakeswap"
+  // uri: "https://info.burgerswap.org/subgraphs/name/burgerswap/platform"
 });
 
 const maticClient = new ApolloClient({
