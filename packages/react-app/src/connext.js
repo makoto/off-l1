@@ -312,7 +312,7 @@ export const swap = async (
   console.log("toSwapData: ", toSwapData);
   setLog("(6/7) Swapping");
   const toSwapWithdraw = await node.withdraw({
-    assetId: toTokenPair,
+    assetId: toToken,
     amount: swapAmount.toString(),
     channelAddress: toChannel.channelAddress,
     callData: toSwapData,
