@@ -12,7 +12,7 @@ export const SwapLinkContainer = styled.span`
   margin-right: 1em;
 `;
 
-function Swap({ chainInfos, combined, currentChain, account, connextNode, provider }) {
+function Swap({ chainId, chainInfos, combined, currentChain, account, connextNode, provider }) {
   const [fromTokenBalance, setFromTokenBalance] = useState(false);
   const [fromTokenPairBalance, setFromTokenPairBalance] = useState(false);
   const [toTokenBalance, setToTokenBalance] = useState(false);
@@ -80,7 +80,7 @@ function Swap({ chainInfos, combined, currentChain, account, connextNode, provid
         ->
         <IconImage src={toExchange.chainIcon} />${symbol} x $USDC<IconImage src={toExchange.exchangeIcon} />
       </h3>
-      {fromToken && toToken && (
+      {chainId && fromToken && toToken && (
         <>
           Your token balance
           <ul>

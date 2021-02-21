@@ -53,10 +53,15 @@ function App({chainInfos}) {
   const [ account, setAccount ] = useState(false);
   const [ balance, setBalance ] = useState(false);
   const [node, setNode] = useState(false);
+  const [ chainId, setChainId ] = useState(false);
   useEffect(() => {
     const init = async () => {
-      const _node = await initNode();
-      setNode(_node);
+      try{
+        const _node = await initNode();
+        setNode(_node);  
+      }catch(e){
+        console.log('Initiation error', {e})
+      }
     };
     init();
   }, []);
@@ -127,12 +132,25 @@ function App({chainInfos}) {
       }
     }
   // }
-  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
-
-  const chainId = provider?._network?.chainId
-  if(provider?._network?.chainId){
-    window.provider = provider
+  let networkName
+  if(window.location.href.match(/\/exchanges\/Quick/)){
+    networkName = 'matic'
+  }else if (window.location.href.match(/\/exchanges\/Honey/)){
+    networkName = 'xdai'
+  }else if (window.location.href.match(/\/exchanges\/Pancake/)){
+    networkName = 'bsc'
   }
+
+  const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal({
+    NETWORK:networkName
+  });
+
+  if(provider){
+    provider.getNetwork().then(({chainId}) => {
+      setChainId(chainId)
+    })
+  }
+  window.provider = provider
   let currentChain, balanceToDisplay
   if(chainId){
     currentChain = chainInfos.filter(c => c.chainId === chainId )[0]
@@ -163,11 +181,13 @@ function App({chainInfos}) {
             🐰
           </Link>
           <NetworkContainer>
-            {currentChain && (
-              <div>
-                Connected to {currentChain.name} as {account.slice(0, 5)}... (
-                {balanceToDisplay} ${currentChain.tokenSymbol})
-              </div>
+            {chainId && (
+              (currentChain) ? (
+                <div>
+                  Connected to {currentChain.name} as {account?.slice(0, 5)}... (
+                  {balanceToDisplay} ${currentChain.tokenSymbol})
+                </div>
+              ) : (`Unsupported Network`)
             )}
             <WalletButton
               provider={provider}
@@ -182,6 +202,7 @@ function App({chainInfos}) {
           </Route>
           <Route path="/exchanges/:from-:to/token/:symbol">
             <Swap
+              chainId={chainId}
               chainInfos={chainInfos}
               currentChain={currentChain}
               combined={combined}
