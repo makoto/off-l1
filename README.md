@@ -5,6 +5,7 @@
 1 click cross chain Uniswap clone arbitrage app.
 
 - [Explainer video](https://www.youtube.com/watch?v=LELEh4aOzM4&)
+- [Slide](https://speakerdeck.com/makoto_inoue/off-l1)
 - [Demo site](http://offl1.surge.sh)
 
 ## How to set up
