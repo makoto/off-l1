@@ -38,9 +38,6 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       });
     }
   }, [log]);
-  console.log('***log', {
-    from, to
-  })
   if(chainInfos && chainInfos.length > 0){
   }else{
     return('')
@@ -124,7 +121,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                   setAmount(number)
                   if (number > 0) {
                     getQuote(fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair, number).then(c => {
-                      console.log('***getQuote3')
+                      console.log('***getQuote3', {c})
                       setQuote(c)
                     })
                   }
@@ -138,7 +135,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     <Note>
                       (Profit:
                         <BlinkingValue
-                          value={displayNumber((quote[2].formatted - quote[3].formatted), 5)}
+                          value={displayNumber((quote[3].formatted - quote[0].formatted), 5)}
                         />${fromSymbol}
                       )
                     </Note>

@@ -80,19 +80,18 @@ export async function getQuote(
     from:toToken,
     to:toTokenPair  
   })
-  // window.ethers = ethers
-  // debugger
+  window.ethers = ethers
   const formatted = ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals)
-  const newRawAmount = ethers.utils.parseUnits(formatted, toToken.decimals)
+  const rounded = ethers.FixedNumber.from(formatted).round(toToken.decimals)
+  const newRawAmount = ethers.utils.parseUnits(rounded.toString(), toToken.decimals)
   console.log('***getQuote1.2',{    
     formatted,
     newRawAmount,
-    from:toToken,
-    to:toTokenPair
+    fromDecimals:fromTokenPair.decimals,
+    toDecimals:toToken.decimals
   })
 
   const reverseQuotes = await toRouter.getAmountsOut(newRawAmount, [toToken.id, toTokenPair.id])
-  // debugger
   return [
     {
       raw:baseQuotes[0],
@@ -102,17 +101,17 @@ export async function getQuote(
     {
       raw:baseQuotes[1],
       formatted:ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals),
-      decimals:toToken.decimals
+      decimals:fromTokenPair.decimals
     },
     {
       raw:reverseQuotes[0],
       formatted:ethers.utils.formatUnits(reverseQuotes[0], toToken.decimals),
-      decimals:fromToken.decimals
+      decimals:toToken.decimals
     },
     {
       raw:reverseQuotes[1],
       formatted:ethers.utils.formatUnits(reverseQuotes[1], toTokenPair.decimals),
-      decimals:toToken.decimals
+      decimals:toTokenPair.decimals
     }
   ]
 }
