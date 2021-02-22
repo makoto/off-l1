@@ -29,8 +29,8 @@ h3{
 
 /* starting ENTER animation */
 .messageout-enter {
-  position: absolute;
-  top: 0;
+  opacity: 0;
+  color: orange;
 }
 
 /* ending ENTER animation */
@@ -41,13 +41,12 @@ h3{
 
 /* starting EXIT animation */
 .messageout-exit {
-  opacity: 1;
-  color: orange;
-  transition: all 2s ease-in-out;
+  position:absolute;
+  left:0;
+  opacity: 0;
 }
 
 /* ending EXIT animation */
 .messageout-exit-active {
-  opacity: 0.5;
-  transition: all 2s ease-in-out;
+  opacity: 0;
 }

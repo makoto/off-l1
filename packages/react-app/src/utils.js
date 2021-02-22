@@ -80,8 +80,8 @@ export async function getQuote(
     from:toToken,
     to:toTokenPair  
   })
-  window.ethers = ethers
-  debugger
+  // window.ethers = ethers
+  // debugger
   const formatted = ethers.utils.formatUnits(baseQuotes[1], fromTokenPair.decimals)
   const newRawAmount = ethers.utils.parseUnits(formatted, toToken.decimals)
   console.log('***getQuote1.2',{    
@@ -134,5 +134,5 @@ export async function getDai(){
 }
 
 export function displayNumber(n, digits =3){
-  return parseFloat(n).toFixed(digits)
+  return n ? parseFloat(n).toFixed(digits) : 0
 }
