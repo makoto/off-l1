@@ -3,9 +3,9 @@ import { useQuery } from "@apollo/react-hooks";
 import { Body, Button, Note, Image, IconImage, Link, InternalLink, Input, ActionContainer, WarningContainer } from "../components";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
-import { getTokenBalance, getQuote, displayNumber } from "../utils"
+import { getTokenBalance, getQuote, displayNumber, getProvider } from "../utils"
 import { ethers } from "ethers";
-import { swap, getRouterBalances } from '../connext'
+import { swap, getRouterBalances, getChannelsForChains, verifyRouterCapacityForTransfer } from '../connext'
 import BlinkingValue from './BlinkingValue'
 import moment from 'moment'
 
@@ -31,6 +31,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
   const [transferComplete, setTransferComplete] = useState(false);
   const [startTime, setStartTime] = useState(false);
   const [endTime, setEndTime] = useState(false);
+  const [fromChannel, setFromChannel] = useState(false);
+  const [toChannel, setToChannel] = useState(false);
+  const [routerOnchainBalance, setRouterOnchainBalance] = useState(false);
 
   useEffect(() => {
     if(log){
@@ -68,6 +71,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       }
     }
   }, [log]);
+
   if(chainInfos && chainInfos.length > 0){
   }else{
     return('')
@@ -86,7 +90,19 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
     toTokenPair = fromTokenData.data?.filter((d) => d?.exchangeName === to)[0];
   }
 
-  if (fromExchange && toExchange && fromToken && toToken && account) {
+  if(connextNode && fromExchange && toExchange && !fromChannel && !toChannel){
+    getChannelsForChains(
+      fromExchange.chainId,
+      toExchange.chainId,
+      connextNode
+    ).then(b => {
+      console.log('***getChannelsForChains', {b})
+      setFromChannel(b.fromChannel)
+      setToChannel(b.toChannel)
+    })
+  }
+
+  if (fromExchange && toExchange && fromToken && toToken && account && !fromTokenBalance) {
     getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
       setFromTokenBalance(b);
     });
@@ -107,13 +123,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
     totalDiff = transferFromDiff + transferToDiff
     percentage = totalDiff / amount * 100
   }
-  console.log('****percentage', {
-    totalDiff, preTransferFromBalance,
-    percentage
-  })
-  // if(fromTokenBalance){
-  //   debugger
-  // }
+
   return (
     <Body>
       <h3>
@@ -147,7 +157,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
             </li>
 
           </ul>
-          {(fromTokenBalance && toTokenBalance) && (
+          {(fromTokenBalance && toTokenBalance && toChannel && toToken) && (
             <>
               Type the amount you want to swap
               <Input
@@ -166,6 +176,16 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     getQuote(fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair, number).then(c => {
                       console.log('***getQuote3', {c})
                       setQuote(c)
+                      verifyRouterCapacityForTransfer(
+                        getProvider(toExchange.rpcUrl),
+                        toToken, // toAssetId,
+                        toChannel, // withdrawChannel,// 
+                        number, // amount
+                        { hardcodedRate:1} //swap
+                      ).then((b) => {
+                        console.log(displayNumber(b.routerOnchainBalance))
+                        setRouterOnchainBalance(b.routerOnchainBalance)
+                      })  
                     })
                   }
                 }}
@@ -181,10 +201,13 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                           value={`${displayNumber((quote[3].formatted - quote[0].formatted), 5)} ${fromSymbol} (${displayNumber(((quote[3].formatted - quote[0].formatted) / amount) * 100)}%)`}
                         />
                     </Note>
+                    Swap limit: {displayNumber(routerOnchainBalance)} ${symbol} on {fromExchange.name}
+                    ({displayNumber(routerOnchainBalance - quote[1].formatted )})
                     <ActionContainer>
                       {
                         currentChain?.name === fromExchange?.name ? (
                           (parseFloat(fromTokenBalance) - amount > 0) ? (
+                            ((routerOnchainBalance - quote[1].formatted) > 1) ? (
                             <>
                               <WarningContainer>
                                 {/* <h3>Warning</h3>
@@ -231,7 +254,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                                 </Button>
                               </WarningContainer>
                             </>
-
+                            ) : (
+                              <Note>Not enough capacity on Router. Please lower the amount </Note>  
+                            )
                           ) : (
                             <Note>Not enough ${fromSymbol} on {fromExchange.name} to Continue </Note>  
                           )

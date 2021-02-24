@@ -1,9 +1,11 @@
 import { BrowserNode } from "@connext/vector-browser-node";
 import { ERC20Abi, TransferNames } from "@connext/vector-types";
-import { Contract, utils } from "ethers";
+import { Contract, utils, constants, ethers } from "ethers"
+
 import UniswapWithdrawHelper from "@connext/vector-withdraw-helpers/artifacts/contracts/UniswapWithdrawHelper/UniswapWithdrawHelper.sol/UniswapWithdrawHelper.json";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { getBalanceForAssetId, getRandomBytes32 } from "@connext/vector-utils";
+import { getBalanceForAssetId, calculateExchangeAmount, getRandomBytes32 } from "@connext/vector-utils";
+
 import { BigNumber } from "@ethersproject/bignumber";
 
 const routerPublicIdentifier =
@@ -42,6 +44,48 @@ export const initNode = async () => {
   await node.init();
 
   return node;
+};
+
+export const getOnchainBalance = async (
+  ethProvider,
+  assetId,
+  address
+) => {
+  
+  window.constants = constants
+  window.Contract = Contract
+  const balance =
+    assetId === constants.AddressZero
+      ? await ethProvider.getBalance(address)
+      : await new Contract(assetId, ERC20Abi, ethProvider).balanceOf(address);
+  return balance;
+};
+
+export const verifyRouterCapacityForTransfer = async (
+  ethProvider,
+  toToken,
+  withdrawChannel,
+  transferAmount,
+  swap
+) => {
+  const toAssetId = toToken.id
+  console.log(`verifyRouterCapacityForTransfer for ${transferAmount}`, {
+    toAssetId,
+    withdrawChannel
+  });
+  const routerOnchain = await getOnchainBalance(
+    ethProvider,
+    toAssetId,
+    withdrawChannel.alice
+  );
+  console.log(`verifyRouterCapacityForTransfer2`,{routerOnchain});
+  const routerOffchain = BigNumber.from(
+    getBalanceForAssetId(withdrawChannel, toAssetId, 'bob')
+  );
+  return({
+    routerOnchainBalance: ethers.utils.formatUnits(routerOnchain, toToken.decimals),
+    routerOffchainBalacne: ethers.utils.formatUnits(routerOffchain, toToken.decimals)
+  })
 };
 
 export const getChannelsForChains = async (fromChainId, toChainId, node) => {
