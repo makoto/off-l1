@@ -33,16 +33,6 @@
         },
         {
           "decimals": "18",
-          "derivedETH": "0.1284089968727798065046502446669687",
-          "id": "0xbf5140a22578168fd562dccf235e5d43a02ce9b1",
-          "symbol": "UNI",
-          "totalLiquidity": "716293.199785090524687718",
-          "tradeVolumeUSD": "22864803.80264052637058107207793995",
-          "txCount": "25523",
-          "untrackedVolumeUSD": "22865977.07196952107056160550434924"
-        },
-        {
-          "decimals": "18",
           "derivedETH": "0.03328861909365321636379013203130024",
           "id": "0x1af3f329e8be154074d8769d1ffa4ee058b1dbc3",
           "symbol": "DAI",
