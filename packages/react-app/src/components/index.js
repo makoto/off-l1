@@ -8,6 +8,10 @@ export const Note = styled.p`
   margin: 5px;
 `
 
+export const Highlight = styled.span`
+  background-color: orange;
+`
+
 export const ActionContainer = styled.p`
    margin: 1em;
 `

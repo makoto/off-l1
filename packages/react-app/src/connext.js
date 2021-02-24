@@ -392,6 +392,10 @@ export const swap = async (
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
   }
+  receipt = await chainJsonProviders[toChainId].waitForTransaction(
+    toWithdraw.getValue().transactionHash
+  );
+
   setLog("(7/7) 🎉 Transfer Complete");
   console.log(`To withdraw complete: `, toWithdraw.getValue());
 };

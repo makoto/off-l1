@@ -100,12 +100,17 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       setToTokenPairBalance(b);
     });
   }
-  let transferFromDiff, transferToDiff, totalDiff
+  let transferFromDiff, transferToDiff, totalDiff, percentage
   if(postTransferFromBalance){
     transferFromDiff = postTransferFromBalance - preTransferFromBalance
     transferToDiff = postTransferToBalance - preTransferToBalance
     totalDiff = transferFromDiff + transferToDiff
+    percentage = totalDiff / amount * 100
   }
+  console.log('****percentage', {
+    totalDiff, preTransferFromBalance,
+    percentage
+  })
   // if(fromTokenBalance){
   //   debugger
   // }
@@ -242,11 +247,11 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                         {transferComplete && (
                           <ul>
                             <li>Time spent: {endTime.diff(startTime, 'second')} seconds</li>
-                            <li>Total difference: {displayNumber(totalDiff)} ${fromSymbol}
+                            <li>Total difference: {displayNumber(totalDiff)} ${fromSymbol} ({displayNumber(percentage, 3)} %)
                               {(totalDiff > 0 ? ('😸') : ('😿'))}
                             </li>
-                            <li>From: {displayNumber(preTransferFromBalance)} - {displayNumber(postTransferFromBalance)} = {displayNumber(transferFromDiff)}</li>
-                            <li>To: {displayNumber(preTransferToBalance)} - {displayNumber(postTransferToBalance)} = {displayNumber(transferToDiff)}</li>
+                            <li>{fromExchange.name}: {displayNumber(preTransferFromBalance)} - {displayNumber(postTransferFromBalance)} = {displayNumber(transferFromDiff)}</li>
+                            <li>{toExchange.name}: {displayNumber(preTransferToBalance)} - {displayNumber(postTransferToBalance)} = {displayNumber(transferToDiff)}</li>
                           </ul>                          
                         )}
                       </div>
