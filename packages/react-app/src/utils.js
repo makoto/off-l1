@@ -12,10 +12,14 @@ export async function getBalance(endpoint, address){
 }
 
 export async function getTokenBalance(endpoint, token, address){
+  console.log('****getTokenBalance1')
   const tokenAddress = token.id
   const provider = new JsonRpcProvider(endpoint)
+  console.log('****getTokenBalance2', {tokenAddress})
   const erc20 = new Contract(tokenAddress, abis.erc20, provider);
+  console.log('****getTokenBalance3', {address})
   const tokenBalance = await erc20.balanceOf(address);
+  console.log('****getTokenBalance4', {tokenBalance})
   return ethers.utils.formatUnits(tokenBalance, token.decimals)
 }
 

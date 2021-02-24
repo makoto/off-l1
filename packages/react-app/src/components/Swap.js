@@ -5,8 +5,9 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getTokenBalance, getQuote, displayNumber } from "../utils"
 import { ethers } from "ethers";
-import { getChannelsForChains, initNode, swap } from '../connext'
+import { swap, getRouterBalances } from '../connext'
 import BlinkingValue from './BlinkingValue'
+import moment from 'moment'
 
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
@@ -21,6 +22,15 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
   const [quote, setQuote] = useState(false);
   const [log, setLog] = useState(false);
   const { from, to, symbol } = useParams();
+  const [preTransferFromBalance, setPreTransferFromBalance] = useState(false);
+  const [postTransferFromBalance, setPostTransferFromBalance] = useState(false);
+  const [preTransferToBalance, setPreTransferToBalance] = useState(false);
+  const [postTransferToBalance, setPostTransferToBalance] = useState(false);
+  const [preTransferBalance, setPreTransferBalance] = useState(false);
+  const [postTransferBalance, postPreTransferBalance] = useState(false);
+  const [transferComplete, setTransferComplete] = useState(false);
+  const [startTime, setStartTime] = useState(false);
+  const [endTime, setEndTime] = useState(false);
 
   useEffect(() => {
     if(log){
@@ -36,6 +46,26 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       getTokenBalance(toExchange.rpcUrl, toTokenPair, account).then((b) => {
         setToTokenPairBalance(b);
       });
+  
+      getRouterBalances({
+        fromChain:fromExchange.chainId,
+        toChain:toExchange.chainId,
+        fromToken:fromToken.id,
+        toToken:toToken.id,
+        node:connextNode
+      }).then(b => {
+        console.log('***getRouterBalances0', b)
+      })
+      if(log.match('7/7')){
+        getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
+          setPostTransferFromBalance(b);
+        });
+        getTokenBalance(toExchange.rpcUrl, toTokenPair, account).then((b) => {
+          setPostTransferToBalance(b);
+        });
+        setTransferComplete(true)
+        setEndTime(moment())
+      }
     }
   }, [log]);
   if(chainInfos && chainInfos.length > 0){
@@ -70,6 +100,12 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       setToTokenPairBalance(b);
     });
   }
+  let transferFromDiff, transferToDiff, totalDiff
+  if(postTransferFromBalance){
+    transferFromDiff = postTransferFromBalance - preTransferFromBalance
+    transferToDiff = postTransferToBalance - preTransferToBalance
+    totalDiff = transferFromDiff + transferToDiff
+  }
   // if(fromTokenBalance){
   //   debugger
   // }
@@ -95,7 +131,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
             <li>
               <BlinkingValue value={displayNumber(fromTokenPairBalance)}/> ${symbol} on {fromExchange.name}
             </li>
-
+            {preTransferBalance && (
+              <li>In transit:  { preTransferBalance } and { postPreTransferBalance }</li>
+            )}
             <li>
               <BlinkingValue value={displayNumber(toTokenBalance)}/> ${symbol} on {toExchange.name}
             </li>
@@ -145,12 +183,12 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                           (parseFloat(fromTokenBalance) - amount > 0) ? (
                             <>
                               <WarningContainer>
-                                <h3>Warning</h3>
+                                {/* <h3>Warning</h3>
                                 <p style={{width:'80%', margin:'1em auto'}}>
                                 This project is submitted for hackathon prototype and not ready for the primte time.
                                 Do not spend more than $1 to try out. It will stop working when it runs out of liquidity on the router.
                                 Learn more at <Link href="https://docs.connext.network/router-basics">Connext website</Link>
-                                </p>
+                                </p> */}
                                 <Button
                                     onClick={(e) => {
                                       // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)
@@ -158,6 +196,17 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                                       // debugger
                                       const normalizedAmount = ethers.utils.parseUnits(amount.toString(), Number(fromToken.decimals))
                                       console.log(`amount: ${amount}, normalizedAmount: ${normalizedAmount}`);
+                                      // setPreTransferFromBalance
+                                      // postTransferFromBalance, setPostTransferFromBalance] = useState(false);
+                                      // const [preTransferToBalance, setPreTransferToBalance] = useState(false);
+                                      // const [postTransferToBalance, setPostTransferToBalance] = useState(false);
+                                      getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
+                                        setPreTransferFromBalance(b);
+                                      });
+                                      getTokenBalance(toExchange.rpcUrl, toTokenPair, account).then((b) => {
+                                        setPreTransferToBalance(b);
+                                      });
+                                  
                                       swap(
                                         normalizedAmount,
                                         fromToken.id,
@@ -170,6 +219,8 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                                         provider,
                                         setLog
                                       )
+                                      setTransferComplete(false)
+                                      setStartTime(moment())
                                     }}
                                   >
                                     Swap
@@ -181,13 +232,23 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                             <Note>Not enough ${fromSymbol} on {fromExchange.name} to Continue </Note>  
                           )
                         ) : (
-                          <Note>Please connect to {fromExchange?.name} network to Continue </Note>
+                          <Note>Please connect to {fromExchange?.name} network and refresh the page </Note>
                         )
                       }
                     </ActionContainer>
                     {log && (
                       <div>
-                        Current status: {log}
+                        Current status: <BlinkingValue value={log} />
+                        {transferComplete && (
+                          <ul>
+                            <li>Time spent: {endTime.diff(startTime, 'second')} seconds</li>
+                            <li>Total difference: {displayNumber(totalDiff)} ${fromSymbol}
+                              {(totalDiff > 0 ? ('😸') : ('😿'))}
+                            </li>
+                            <li>From: {displayNumber(preTransferFromBalance)} - {displayNumber(postTransferFromBalance)} = {displayNumber(transferFromDiff)}</li>
+                            <li>To: {displayNumber(preTransferToBalance)} - {displayNumber(postTransferToBalance)} = {displayNumber(transferToDiff)}</li>
+                          </ul>                          
+                        )}
                       </div>
                     )}
                   </>

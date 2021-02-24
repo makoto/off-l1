@@ -103,6 +103,25 @@ export const getChannelsForChains = async (fromChainId, toChainId, node) => {
   return { fromChannel, toChannel };
 };
 
+export const getRouterBalances = async ({
+  fromChain,
+  toChain,
+  fromToken,
+  toToken,
+  node,
+}) => {
+  let { fromChannel, toChannel } = await getChannelsForChains(
+    fromChain,
+    toChain,
+    node
+  ); 
+  const preTransferBalance = getBalanceForAssetId(fromChannel, fromToken, "bob");
+  const postTransferBalance = getBalanceForAssetId(toChannel,toToken,"bob");
+  return ({
+    preTransferBalance, postTransferBalance
+  })
+}
+
 export const swap = async (
   swapAmount,
   fromToken,
@@ -115,6 +134,7 @@ export const swap = async (
   provider,
   setLog
 ) => {
+  console.log('***swap1')
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
   console.log(`Starting swap: `, {
@@ -124,7 +144,7 @@ export const swap = async (
     fromChainId,
     toChainId,
   });
-  setLog(`(1/7) Starting swap`);
+  
   let { fromChannel, toChannel } = await getChannelsForChains(
     fromChainId,
     toChainId,
@@ -137,19 +157,22 @@ export const swap = async (
       `Wrong network, expected chainId ${fromChainId}, got ${network.chainId}`
     );
   }
-
+  console.log('***swap2')
   // // TODO: handle ETH
   const balance = getBalanceForAssetId(fromChannel, fromToken, "bob");
   if (BigNumber.from(balance).lt(swapAmount)) {
+    console.log('***swap3')
     const fromTokenContract = new Contract(
       fromToken,
       ERC20Abi,
       provider.getSigner()
     );
+    setLog(`(1/7) Starting swap`);
     const tx = await fromTokenContract.transfer(
       fromChannel.channelAddress,
       swapAmount
     );
+    console.log('***swap5')
     console.log("Sent approval tx, waiting for confirmation: ", tx);
     const receipt = await tx.wait();
     console.log("Tx confirmed, receipt: ", receipt);
@@ -369,6 +392,6 @@ export const swap = async (
   if (toWithdraw.isError) {
     throw toWithdraw.getError();
   }
-  setLog("(7/7) Swapping");
+  setLog("(7/7) 🎉 Transfer Complete");
   console.log(`To withdraw complete: `, toWithdraw.getValue());
 };
