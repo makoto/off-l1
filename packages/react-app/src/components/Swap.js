@@ -176,11 +176,10 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     {displayNumber(quote[0].formatted)} ${fromSymbol} is {displayNumber(quote[1].formatted)} ${symbol} on {fromExchange.name} <br/>
                     {displayNumber(quote[2].formatted)} ${symbol} is {displayNumber(quote[3].formatted)} ${fromSymbol} on {toExchange.name} <br/>
                     <Note>
-                      (Profit:
+                      Profit Estimate:
                         <BlinkingValue
-                          value={displayNumber((quote[3].formatted - quote[0].formatted), 5)}
-                        />${fromSymbol}
-                      )
+                          value={`${displayNumber((quote[3].formatted - quote[0].formatted), 5)} ${fromSymbol} (${displayNumber(((quote[3].formatted - quote[0].formatted) / amount) * 100)}%)`}
+                        />
                     </Note>
                     <ActionContainer>
                       {
