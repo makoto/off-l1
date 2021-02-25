@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import { useQuery } from "@apollo/react-hooks";
+import styled from "styled-components";
 
 import { Body, Button, Header, NetworkContainer } from "./components";
 import Home from "./components/Home";
 import Token from "./components/Token";
 import Swap from "./components/Swap";
+import User from "./components/User";
 import logo from "./ethereumLogo.png";
 import useWeb3Modal from "./hooks/useWeb3Modal";
-import { getBalance, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
+import { getBalance, getProvider, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
 import pancakeData from './data/pancake.json'
 import honeyData from './data/honey.json'
 import quickData from './data/quick.json'
@@ -45,18 +47,16 @@ function About() {
   return <h2>About</h2>;
 }
 
-function Users() {
-  return <h2>Users</h2>;
-}
-
 function App({chainInfos}) {
   const [ bnbPrice, setBnbPrice ] = useState(false);
   const [ ethPrice, setEthPrice ] = useState(false);
   const [ daiPrice, setDaiPrice ] = useState(false);
   const [ account, setAccount ] = useState(false);
+  const [ userName, setUserName ] = useState(false);
   const [ balance, setBalance ] = useState(false);
   const [node, setNode] = useState(false);
   const [ chainId, setChainId ] = useState(false);
+
   // console.log('***honeyData', {honeyData})
   useEffect(() => {
     const init = async () => {
@@ -177,6 +177,12 @@ function App({chainInfos}) {
     let signer = provider.getSigner()
     provider.listAccounts().then(a => {
       setAccount(a[0])
+      const mainnetProvider = getProvider()
+      window.ethers = ethers
+      window.provider = provider
+      mainnetProvider.lookupAddress(a[0]).then((name)=>{
+        setUserName(name)
+      })
       if(currentChain){
         getBalance(currentChain.rpcUrl, a[0]).then(b => {
           setBalance(ethers.utils.formatEther(b))
@@ -201,7 +207,13 @@ function App({chainInfos}) {
             {chainId && (
               (currentChain) ? (
                 <div>
-                  Connected to {currentChain.name} as {account?.slice(0, 5)}... (
+                  Connected to {currentChain.name} as
+                  <Link
+                    to={`/user/${userName || account}`}
+                    style={{margin:'0 5px', color:'#5E4C5A'}}
+                  >
+                  { userName || `${account?.slice(0, 5)}...` }
+                  </Link> (
                   {balanceToDisplay} ${currentChain.tokenSymbol})
                 </div>
               ) : (`Unsupported Network`)
@@ -231,8 +243,8 @@ function App({chainInfos}) {
           <Route path="/about">
             <About />
           </Route>
-          <Route path="/users">
-            <Users />
+          <Route path="/user/:account">
+            <User />
           </Route>
           <Route path="/">
             <Home chainInfos={chainInfos} combined={combined} />

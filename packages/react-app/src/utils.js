@@ -5,6 +5,7 @@ import { ethers } from "ethers";
 import { formatUnits } from "ethers/lib/utils";
 const MAX_AMOUNT = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 const ZERO_AMOUNT = '0x'
+const INFURA_KEY = '10c3a0fa44b94deba2a896658844a49c'
 
 export async function getBalance(endpoint, address){
   const provider = new JsonRpcProvider(endpoint)
@@ -21,7 +22,7 @@ export async function getTokenBalance(endpoint, token, address){
 }
 
 export function getProvider(endpoint){
-  return new JsonRpcProvider(endpoint)
+  return new JsonRpcProvider(endpoint || `https://mainnet.infura.io/v3/${INFURA_KEY}`)
 }
 
 export async function getTokenAllowance(exchange, token, ownerAddress){
