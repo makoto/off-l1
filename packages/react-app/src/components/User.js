@@ -206,7 +206,7 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
       <h4>xDAI</h4>
       <Label color='red' >Data is not available</Label> */}
 
-      <h3>Rcent Token transfers</h3>
+      <h3>Recent Token transfers</h3>
       <ul>
         {
           !bscTokenTransfersLoading ? (
