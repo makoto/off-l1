@@ -13,17 +13,20 @@ export async function getMaticTokenBalances(address){
   return await res.json()
 }
 
-export async function getTokenTransfers(exchange, address){
-  console.log('***getTokenTransfers1', {exchange, address})
-  const tokenAddress = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'
-  if(exchange.chainId === 137){
-    let res = await fetch(`https://api.covalenthq.com/v1/137/address/${address}/transfers_v2/?contract-address=${tokenAddress}&key=${C_KEY}`)
-    console.log('*** getTokenTransfers2', await res.json())
-  }else if(exchange.chainId === 65){
 
-  }else{
-    console.log('Not supported')
+export async function getMaticTokenTransfers(address, tokens){
+  let transfers = []
+  let tokenAddresses = tokens.map(t => t.id)
+  for (let i = 0; i < tokenAddresses.length; i++) {
+    const tokenAddress = tokenAddresses[i];
+    let res = await fetch(`https://api.covalenthq.com/v1/137/address/${address}/transfers_v2/?contract-address=${tokenAddress}&key=${C_KEY}`)
+    let res2 = await res.json()
+    // debugger
+    let symbol = tokens[i].symbol
+    let decimals = tokens[i].decimals
+    transfers = [...transfers, ...res2.data.items.map(i => { return ({...i, symbol, decimals })})]
   }
+  return transfers
 }
 
 export async function getBalance(endpoint, address){

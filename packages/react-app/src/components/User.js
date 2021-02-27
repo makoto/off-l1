@@ -4,29 +4,33 @@ import { Body, Button, Header, Image, IconImage, Link, InternalLink } from ".";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getChannelForChain, withdraw } from '../connext'
+import moment from 'moment'
 
-import { getProvider, getMaticTokenBalances, displayNumber } from "../utils"
+import { getProvider, getMaticTokenBalances, getMaticTokenTransfers, displayNumber } from "../utils"
 import { BSC_TOKEN_BALANCES, BSC_TOKEN_TRANSFERS } from "../graphql/subgraph";
 import { ethers } from "ethers"
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
 `;
+const MATIC_TOKEN_SYMBOLS = ['USDC', 'USDT', 'DAI', 'MATIC']
 
 function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
   let { account } = useParams()
   const [channels, setChannels] = useState({});
   const tokenData = [pancakeData, quickData, honeyData]
-
+  // debugger
+  const maticTokens = quickData.data.tokens.filter(t => MATIC_TOKEN_SYMBOLS.includes(t.symbol))
   const [ userAddress, setUserAddress ] = useState(false);
   const [ maticBalances, setMaticBalances ] = useState([]);
-  let { data } = useQuery(BSC_TOKEN_TRANSFERS, {
+  const [ matictransfers, setMatictransfers ] = useState([]);
+  let { loading:bscTokenTransfersLoading , data:bscTokenTransfers = {} } = useQuery(BSC_TOKEN_TRANSFERS, {
     client:chainInfos[0].bitQueryClient,
     variables:{
       address:userAddress
     },
     skip:!userAddress
   });
-  let { data:bscTokenBalances = {} } = useQuery(BSC_TOKEN_BALANCES, {
+  let { loading:bscTokenBalancesLoading, data:bscTokenBalances = {} } = useQuery(BSC_TOKEN_BALANCES, {
     client:chainInfos[0].bitQueryClient,
     variables:{
       address:userAddress
@@ -34,15 +38,18 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
     skip:!userAddress
   });
 
-  console.log('***data', {data})
+  console.log('***data', {bscTokenTransfers, matictransfers})
   console.log('***channels', {channels})
   console.log('***bscTokenBalances', {bscTokenBalances})
   useEffect(() => {
     if(userAddress){
       getMaticTokenBalances(userAddress).then((m) => {
-        quickData.data.tokens.filter(m => m.symbol === 'USDT')
-        let tokens = m.data.items.filter(i => ['USDC', 'USDT', 'DAI', 'MATIC'].includes(i.contract_ticker_symbol))
+        let tokens = m.data.items.filter(i => MATIC_TOKEN_SYMBOLS.includes(i.contract_ticker_symbol))
         setMaticBalances(tokens)
+      })
+      
+      getMaticTokenTransfers(userAddress, maticTokens).then((t) => {
+        setMatictransfers(t)
       })
     }
   }, [userAddress])
@@ -79,7 +86,7 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
     }
   }, [chainInfos, connextNode]);
 
-  if(bscTokenBalances?.ethereum){
+  if(bscTokenTransfers?.ethereum){
     // debugger
   }
   let counter = 0
@@ -95,13 +102,47 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
           })}
         </ul>
       <h4>Binance Smart chain</h4>
-        <ul>
-          {bscTokenBalances?.ethereum && bscTokenBalances?.ethereum.address[0].balances.map(b => {
-            if(['USDC', 'USDT', 'DAI', 'BNB'].includes(b.currency.symbol)){
-              return(<li>{displayNumber(b.value)} {b.currency.symbol}</li>)
+        {bscTokenBalancesLoading ? (<p>Loading...</p>) : (
+          <ul>
+            {bscTokenBalances?.ethereum && bscTokenBalances?.ethereum.address[0].balances.map(b => {
+              if(['USDC', 'USDT', 'DAI', 'BNB'].includes(b.currency.symbol)){
+                return(<li>{displayNumber(b.value, 5)} {b.currency.symbol}</li>)
+              }
+            })}
+          </ul>
+        )}
+      <h4>xDAI</h4>
+      Data is not available
+      <h3>Rcent Token transfers</h3>
+      <h4>Matic</h4>
+        {matictransfers && matictransfers
+          .sort(a => moment(a.block_signed_at).unix() ).slice(0,5)
+          .map(t => {
+          // if(parseInt(t.value) > 0){
+          if(true){
+            let formatted = ethers.utils.formatUnits(t.value, t.decimals)
+            window.displayNumber = displayNumber
+            window.moment = moment
+            let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
+            let direction = t.from_address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
+            let sentense = `${dateFormatted}: ${displayNumber(formatted, 3)} ${t.symbol} ${direction} (${t.tx_hash.slice(0,5)}...)`
+            return(<li>{sentense}</li>)
+          }
+        })}
+      <h4>Binance Smart chain</h4>
+        {bscTokenTransfersLoading ? (<p>Loading...</p>) : (
+          <ul>
+            {
+              bscTokenTransfers?.ethereum && bscTokenTransfers?.ethereum.transfers
+                .filter(s => ['USDC', 'USDT', 'DAI', 'BNB'].includes(s.currency.symbol))
+                .map(t => {
+                  let direction = t.receiver.address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
+                  let sentense = `${t.block.timestamp.time}: ${displayNumber(t.amount, 3)} ${t.currency.symbol} ${direction} (${t.transaction.hash.slice(0,5)}...)`
+                  return(<li>{sentense}</li>)
+                }).slice(0,5)
             }
-          })}
-        </ul>
+          </ul>
+        )}
       <h4>xDAI</h4>
       Data is not available
       <h3>Balances in your channel</h3>

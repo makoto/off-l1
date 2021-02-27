@@ -20,27 +20,37 @@ export const TOKEN_DATA = gql`
 `
 
 export const BSC_TOKEN_TRANSFERS = gql`
-  query($address:String!) {
+  query($address: String!){
     ethereum(network: bsc){
-        transfers(receiver:{is:$address}, sender:{is:"0x169d436de25ed3356fc67fdc4ff54090938099c6"}){
-          block{
-            timestamp{
-              time
-            }
+      transfers(any: [ 
+        {sender: {is:$address}}  
+        {receiver: {is:$address}} 
+      ], options:{ desc:"block.timestamp.unixtime" }){
+        block{
+          timestamp{
+            time
+            unixtime
           }
-          currency{
-            address
-            symbol
-            decimals
-            tokenType
-          }
-          amount
-          sender{
-            address
-          }
+        }
+        transaction{
+          hash
+        }
+        currency{
+          address
+          symbol
+          decimals
+          tokenType
+        }
+        amount
+        sender{
+          address
+        }
+        receiver{
+          address
         }
       }
     }
+  }
 `
 
 export const BSC_TOKEN_BALANCES = gql`
