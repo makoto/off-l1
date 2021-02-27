@@ -95,3 +95,15 @@ export const Input = styled.input`
  padding: 1em;
  margin: 1em;
 `
+
+export const Label = styled.span`
+  margin: 0.5em;
+  padding: 8px;
+  font-size: x-small;
+  text-align: center;
+  vertical-align: middle;
+  width: 50px;
+  display: inline-block;
+  border-radius: 0.35rem;
+  ${props =>  `background-color:${props.color}`  }
+`

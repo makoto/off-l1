@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import { Body, Button, Image, IconImage, Link, Note } from ".";
+import { Body, Button, Label, IconImage, Link, Note } from ".";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getChannelForChain, withdraw } from '../connext'
@@ -90,11 +90,7 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
     let filtered = matictransfers.sort(a => moment(a.block_signed_at).unix() ).slice(0,5)
       .map(t => {
         let formatted = ethers.utils.formatUnits(t.transfers[0].delta, t.decimals)
-        window.displayNumber = displayNumber
-        window.moment = moment
-        let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
         let direction = t.from_address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
-        let sentense = `${dateFormatted}: ${displayNumber(formatted, 3)} ${t.symbol} ${direction} (${t.tx_hash.slice(0,5)}...)`
         let timestamp = moment(t.block_signed_at)
         return({
           chainName:'Matic',
@@ -189,7 +185,7 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
         </>
       )}
 
-      <h3>Token Balances</h3>
+      {/* <h3>Token Balances</h3>
       <h4>Matic</h4>
         <ul>
           {maticBalances.map(b => {
@@ -208,13 +204,15 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
           </ul>
         )}
       <h4>xDAI</h4>
-      Data is not available
+      <Label color='red' >Data is not available</Label> */}
+
       <h3>Rcent Token transfers</h3>
       <ul>
         {
           !bscTokenTransfersLoading ? (
             tokenTransfers.map(o => {
-              return(<li><IconImage src={chainInfos[o.chainIndex].chainIcon} /> {o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
+              return(<li><IconImage src={chainInfos[o.chainIndex].chainIcon} /> {o.timestamp.format("yyyy-MM-DD HH:mm:SS")}: {displayNumber(o.amount, 3)} {o.symbol}
+                <Label color={o.direction === 'IN' ? '#4CAF50' : '#ff9800'} >{o.direction}</Label> (
                 <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
               )</li>)
             })
