@@ -267,6 +267,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     </ActionContainer>
                     {log && (
                       <div>
+                        <Note style={{color:'orange'}}>Do not refresh this page!!!</Note>
                         Current status: <BlinkingValue value={log} />
                         {transferComplete && (
                           <ul>

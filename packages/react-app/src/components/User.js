@@ -127,12 +127,12 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
     })
     tokenTransfers = [...tokenTransfers, ...filtered].sort((a,b) => b.unix - a.unix)
   }
-  console.log('***tokenTransfers', {tokenTransfers})
+  console.log('***tokenTransfers', {tokenTransfers, userAddress, account})
   let counter = 0
   return (
     <Body>
       <h2>{userName}</h2>
-      { userAddress && account?.toLowerCase() === userAddress?.toLowerCase() && (
+      { userAddress && account && account.toLowerCase() === userAddress.toLowerCase() && (
         <>
           <h3>Outstanding balance in your channel</h3>
           { Object.entries(channels).map(([key, c]) => {
