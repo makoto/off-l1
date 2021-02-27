@@ -76,6 +76,7 @@ export const Button = styled.button`
   cursor: pointer;
   font-size: 16px;
   text-align: center;
+  vertical-align: middle;
   text-decoration: none;
   margin: 0px 20px;
   padding: 12px 24px;
