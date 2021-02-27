@@ -126,7 +126,17 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
             let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
             let direction = t.from_address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
             let sentense = `${dateFormatted}: ${displayNumber(formatted, 3)} ${t.symbol} ${direction} (${t.tx_hash.slice(0,5)}...)`
-            return(<li>{sentense}</li>)
+            let o = {
+              timestamp: moment(t.block_signed_at),
+              amount: formatted,
+              symbol:t.symbol,
+              direction,
+              hash:t.tx_hash,
+              explorerUrl:`https://explorer-mainnet.maticvigil.com/tx/${t.tx_hash}`
+            }
+            return(<li>{o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
+              <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
+            )</li>)
           }
         })}
       <h4>Binance Smart chain</h4>
@@ -137,8 +147,17 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
                 .filter(s => ['USDC', 'USDT', 'DAI', 'BNB'].includes(s.currency.symbol))
                 .map(t => {
                   let direction = t.receiver.address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
-                  let sentense = `${t.block.timestamp.time}: ${displayNumber(t.amount, 3)} ${t.currency.symbol} ${direction} (${t.transaction.hash.slice(0,5)}...)`
-                  return(<li>{sentense}</li>)
+                  let o = {
+                    timestamp: moment(t.block.timestamp.time),
+                    amount: t.amount,
+                    symbol:t.currency.symbol,
+                    direction,
+                    hash:t.transaction.hash,
+                    explorerUrl:`https://bscscan.com/tx/${t.transaction.hash}`
+                  }
+                  return(<li>{o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
+                    <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
+                  )</li>)
                 }).slice(0,5)
             }
           </ul>
