@@ -14,8 +14,8 @@ export const SwapLinkContainer = styled.span`
 `;
 const MATIC_TOKEN_SYMBOLS = ['USDC', 'USDT', 'DAI', 'MATIC']
 
-function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
-  let { account } = useParams()
+function User({chainInfos, connextNode, pancakeData, quickData, honeyData, account}) {
+  let { account:userName } = useParams()
   const [channels, setChannels] = useState({});
   const tokenData = [pancakeData, quickData, honeyData]
   // debugger
@@ -54,15 +54,15 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
     }
   }, [userAddress])
   useEffect(() => {
-    if(account.match(/^0x/) && account.length === 42){
-      setUserAddress(account)
+    if(userName.match(/^0x/) && userName.length === 42){
+      setUserAddress(userName)
     }else{
       const mainnetProvider = getProvider()
-      mainnetProvider.resolveName(account).then((a)=>{
+      mainnetProvider.resolveName(userName).then((a)=>{
         setUserAddress(a)
       })
     }
-  }, [account, userAddress]);
+  }, [userName, userAddress]);
   useEffect(() => {
     if(connextNode && chainInfos && channels){
       for (let i = 0; i < chainInfos.length; i++) {
@@ -92,7 +92,60 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
   let counter = 0
   return (
     <Body>
-      <h2>{account}</h2>
+      <h2>{userName}</h2>
+      { userAddress && account?.toLowerCase() === userAddress?.toLowerCase() && (
+        <>
+          <h3>Outstanding balance in your channel</h3>
+          { Object.entries(channels).map(([key, c]) => {
+            let counter = 0
+            return (
+              <>
+                { c.channel.balances.some(b => b.amount.some(c => c > 0) ) && (
+                  <>
+                    <h4>{key}</h4>
+                    <ul>
+                    {c.channel.assetIds.map((assetId, i) => {
+                      let token = tokenData[c?.channelIndex]?.data?.tokens?.filter(t => t.id === assetId.toLowerCase())[0]
+                      let balance = c.channel.balances[i]
+                      return balance.amount.map((a, j) => {
+                        if(parseInt(a) > 0){
+                          let formatted = ethers.utils.formatUnits(a, token.decimals)
+                          counter+=1
+                          return(
+                            <li>
+                              {displayNumber(formatted)} {token.symbol}
+                              <Button
+                                onClick={
+                                  () => {
+                                    withdraw(
+                                      connextNode,
+                                      assetId,
+                                      a,
+                                      c.channel.channelAddress,
+                                      userAddress
+                                    ).then(r => {
+                                      console.log('****response', r)
+                                    })
+                                  }
+                                }
+                              >
+                                Withdraw
+                              </Button>
+                            </li>
+                          )
+                        }
+                      })
+                    })}
+                    </ul>
+                  </>
+                )}
+              </>
+            )
+          })}
+          {Object.keys(channels).length === 0 ? (<p>Looking up balances...</p>) : counter === 0 ? (<p>No outstanding balance in your channel</p>) : '' }
+        </>
+      )}
+
       <h3>Token Balances</h3>
       <h4>Matic</h4>
         <ul>
@@ -120,7 +173,7 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
           .map(t => {
           // if(parseInt(t.value) > 0){
           if(true){
-            let formatted = ethers.utils.formatUnits(t.value, t.decimals)
+            let formatted = ethers.utils.formatUnits(t.transfers[0].delta, t.decimals)
             window.displayNumber = displayNumber
             window.moment = moment
             let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
@@ -164,54 +217,6 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
         )}
       <h4>xDAI</h4>
       Data is not available
-      <h3>Balances in your channel</h3>
-      { Object.entries(channels).map(([key, c]) => {
-        let counter = 0
-        return (
-          <>
-            { c.channel.balances.some(b => b.amount.some(c => c > 0) ) && (
-              <>
-                <h4>{key}</h4>
-                <ul>
-                {c.channel.assetIds.map((assetId, i) => {
-                  let token = tokenData[c?.channelIndex]?.data?.tokens?.filter(t => t.id === assetId.toLowerCase())[0]
-                  let balance = c.channel.balances[i]
-                  return balance.amount.map((a, j) => {
-                    if(parseInt(a) > 0){
-                      let formatted = ethers.utils.formatUnits(a, token.decimals)
-                      counter+=1
-                      return(
-                        <li>
-                          {displayNumber(formatted)} {token.symbol}
-                          <Button
-                            onClick={
-                              () => {
-                                withdraw(
-                                  connextNode,
-                                  assetId,
-                                  a,
-                                  c.channel.channelAddress,
-                                  userAddress
-                                ).then(r => {
-                                  console.log('****response', r)
-                                })
-                              }
-                            }
-                          >
-                            Withdraw
-                          </Button>
-                        </li>
-                      )
-                    }
-                  })
-                })}
-                </ul>
-              </>
-            )}
-          </>
-        )
-      })}
-      {Object.keys(channels).length === 0 ? (<p>Looking up balances...</p>) : counter === 0 ? (<p>There is no balance in your channel</p>) : '' }
     </Body>
   )
 }

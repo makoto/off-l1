@@ -250,6 +250,7 @@ function App({chainInfos}) {
               quickData={quickData}
               chainInfos={chainInfos}
               connextNode={node}
+              account={account}
             />
           </Route>
           <Route path="/">
