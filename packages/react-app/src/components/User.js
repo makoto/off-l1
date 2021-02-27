@@ -5,8 +5,8 @@ import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getChannelForChain, withdraw } from '../connext'
 
-import { getProvider, displayNumber } from "../utils"
-import { BSC_TOKEN_TRANSFERS } from "../graphql/subgraph";
+import { getProvider, getMaticTokenBalances, displayNumber } from "../utils"
+import { BSC_TOKEN_BALANCES, BSC_TOKEN_TRANSFERS } from "../graphql/subgraph";
 import { ethers } from "ethers"
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
@@ -18,15 +18,34 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
   const tokenData = [pancakeData, quickData, honeyData]
 
   const [ userAddress, setUserAddress ] = useState(false);
-  let { loading, error, data } = useQuery(BSC_TOKEN_TRANSFERS, {
+  const [ maticBalances, setMaticBalances ] = useState([]);
+  let { data } = useQuery(BSC_TOKEN_TRANSFERS, {
     client:chainInfos[0].bitQueryClient,
     variables:{
       address:userAddress
     },
     skip:!userAddress
   });
+  let { data:bscTokenBalances = {} } = useQuery(BSC_TOKEN_BALANCES, {
+    client:chainInfos[0].bitQueryClient,
+    variables:{
+      address:userAddress
+    },
+    skip:!userAddress
+  });
+
   console.log('***data', {data})
   console.log('***channels', {channels})
+  console.log('***bscTokenBalances', {bscTokenBalances})
+  useEffect(() => {
+    if(userAddress){
+      getMaticTokenBalances(userAddress).then((m) => {
+        quickData.data.tokens.filter(m => m.symbol === 'USDT')
+        let tokens = m.data.items.filter(i => ['USDC', 'USDT', 'DAI', 'MATIC'].includes(i.contract_ticker_symbol))
+        setMaticBalances(tokens)
+      })
+    }
+  }, [userAddress])
   useEffect(() => {
     if(account.match(/^0x/) && account.length === 42){
       setUserAddress(account)
@@ -60,10 +79,31 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData}) {
     }
   }, [chainInfos, connextNode]);
 
+  if(bscTokenBalances?.ethereum){
+    // debugger
+  }
   let counter = 0
   return (
     <Body>
       <h2>{account}</h2>
+      <h3>Token Balances</h3>
+      <h4>Matic</h4>
+        <ul>
+          {maticBalances.map(b => {
+            let formatted = ethers.utils.formatUnits(b.balance, b.contract_decimals)
+            return(<li>{displayNumber(formatted)} {b.contract_ticker_symbol}</li>)
+          })}
+        </ul>
+      <h4>Binance Smart chain</h4>
+        <ul>
+          {bscTokenBalances?.ethereum && bscTokenBalances?.ethereum.address[0].balances.map(b => {
+            if(['USDC', 'USDT', 'DAI', 'BNB'].includes(b.currency.symbol)){
+              return(<li>{displayNumber(b.value)} {b.currency.symbol}</li>)
+            }
+          })}
+        </ul>
+      <h4>xDAI</h4>
+      Data is not available
       <h3>Balances in your channel</h3>
       { Object.entries(channels).map(([key, c]) => {
         let counter = 0

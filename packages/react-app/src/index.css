@@ -27,6 +27,10 @@ h3{
   margin: 0 0.5em;
 }
 
+h4{
+  margin: 0 0.5em;
+}
+
 /* starting ENTER animation */
 .messageout-enter {
   opacity: 0;

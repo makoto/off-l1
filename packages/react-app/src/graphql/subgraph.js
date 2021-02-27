@@ -42,3 +42,22 @@ export const BSC_TOKEN_TRANSFERS = gql`
       }
     }
 `
+
+export const BSC_TOKEN_BALANCES = gql`
+  query (
+    $address: String!
+  ) {
+    ethereum(network: bsc) {
+      address(address: {is: $address}) {
+        balances {
+          currency {
+            address
+            symbol
+            tokenType
+          }
+          value
+        }
+      }
+    }
+  }
+`

@@ -8,6 +8,11 @@ const ZERO_AMOUNT = '0x'
 const INFURA_KEY = '10c3a0fa44b94deba2a896658844a49c'
 const C_KEY = 'ckey_125f8d62ef8b4410a92c2787d6c'
 
+export async function getMaticTokenBalances(address){
+  let res = await fetch(`https://api.covalenthq.com/v1/137/address/${address}/balances_v2`)
+  return await res.json()
+}
+
 export async function getTokenTransfers(exchange, address){
   console.log('***getTokenTransfers1', {exchange, address})
   const tokenAddress = '0x2791bca1f2de4661ed88a30c99a7a9449aa84174'
