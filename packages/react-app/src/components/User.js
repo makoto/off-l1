@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@apollo/react-hooks";
-import { Body, Button, Header, Image, IconImage, Link, InternalLink } from ".";
+import { Body, Button, Image, IconImage, Link, Note } from ".";
 import { useParams } from "react-router-dom";
 import styled from "styled-components";
 import { getChannelForChain, withdraw } from '../connext'
@@ -85,10 +85,53 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
       }
     }
   }, [chainInfos, connextNode]);
+  let tokenTransfers = []
+  if(matictransfers){
+    let filtered = matictransfers.sort(a => moment(a.block_signed_at).unix() ).slice(0,5)
+      .map(t => {
+        let formatted = ethers.utils.formatUnits(t.transfers[0].delta, t.decimals)
+        window.displayNumber = displayNumber
+        window.moment = moment
+        let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
+        let direction = t.from_address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
+        let sentense = `${dateFormatted}: ${displayNumber(formatted, 3)} ${t.symbol} ${direction} (${t.tx_hash.slice(0,5)}...)`
+        let timestamp = moment(t.block_signed_at)
+        return({
+          chainName:'Matic',
+          chainIndex:1,
+          unix:timestamp.unix(),
+          timestamp,
+          amount: formatted,
+          symbol:t.symbol,
+          direction,
+          hash:t.tx_hash,
+          explorerUrl:`https://explorer-mainnet.maticvigil.com/tx/${t.tx_hash}`
+        })
+      })
+    tokenTransfers = [...tokenTransfers, ...filtered]
+  }
 
   if(bscTokenTransfers?.ethereum){
-    // debugger
+    let filtered = bscTokenTransfers?.ethereum.transfers
+    .filter(s => ['USDC', 'USDT', 'DAI', 'BNB'].includes(s.currency.symbol)).slice(0,5)
+    .map(t => {
+      let direction = t.receiver.address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
+      let timestamp = moment(t.block.timestamp.time)
+      return({
+        chainName:'BSC',
+        chainIndex:0,
+        timestamp,
+        unix:timestamp.unix(),
+        amount: t.amount,
+        symbol:t.currency.symbol,
+        direction,
+        hash:t.transaction.hash,
+        explorerUrl:`https://bscscan.com/tx/${t.transaction.hash}`
+      })
+    })
+    tokenTransfers = [...tokenTransfers, ...filtered].sort((a,b) => b.unix - a.unix)
   }
+  console.log('***tokenTransfers', {tokenTransfers})
   let counter = 0
   return (
     <Body>
@@ -167,56 +210,19 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
       <h4>xDAI</h4>
       Data is not available
       <h3>Rcent Token transfers</h3>
-      <h4>Matic</h4>
-        {matictransfers && matictransfers
-          .sort(a => moment(a.block_signed_at).unix() ).slice(0,5)
-          .map(t => {
-          // if(parseInt(t.value) > 0){
-          if(true){
-            let formatted = ethers.utils.formatUnits(t.transfers[0].delta, t.decimals)
-            window.displayNumber = displayNumber
-            window.moment = moment
-            let dateFormatted = moment(t.block_signed_at).format("yyyy-MM-DD HH:MM:SS")
-            let direction = t.from_address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
-            let sentense = `${dateFormatted}: ${displayNumber(formatted, 3)} ${t.symbol} ${direction} (${t.tx_hash.slice(0,5)}...)`
-            let o = {
-              timestamp: moment(t.block_signed_at),
-              amount: formatted,
-              symbol:t.symbol,
-              direction,
-              hash:t.tx_hash,
-              explorerUrl:`https://explorer-mainnet.maticvigil.com/tx/${t.tx_hash}`
-            }
-            return(<li>{o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
-              <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
-            )</li>)
-          }
-        })}
-      <h4>Binance Smart chain</h4>
-        {bscTokenTransfersLoading ? (<p>Loading...</p>) : (
-          <ul>
-            {
-              bscTokenTransfers?.ethereum && bscTokenTransfers?.ethereum.transfers
-                .filter(s => ['USDC', 'USDT', 'DAI', 'BNB'].includes(s.currency.symbol))
-                .map(t => {
-                  let direction = t.receiver.address.toLowerCase() === userAddress.toLowerCase() ? "IN" : "OUT"
-                  let o = {
-                    timestamp: moment(t.block.timestamp.time),
-                    amount: t.amount,
-                    symbol:t.currency.symbol,
-                    direction,
-                    hash:t.transaction.hash,
-                    explorerUrl:`https://bscscan.com/tx/${t.transaction.hash}`
-                  }
-                  return(<li>{o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
-                    <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
-                  )</li>)
-                }).slice(0,5)
-            }
-          </ul>
-        )}
-      <h4>xDAI</h4>
-      Data is not available
+      <ul>
+        {
+          !bscTokenTransfersLoading ? (
+            tokenTransfers.map(o => {
+              return(<li><IconImage src={chainInfos[o.chainIndex].chainIcon} /> {o.timestamp.format("yyyy-MM-DD HH:MM:SS")}: {displayNumber(o.amount, 3)} {o.symbol} {o.direction} (
+                <Link href={o.explorerUrl}>{o.hash.slice(0,5)}...</Link>
+              )</li>)
+            })
+          ) : (<p>Loading...</p>)
+        }
+      </ul>
+      <Note>xDAI Data is not available</Note>
+      
     </Body>
   )
 }
