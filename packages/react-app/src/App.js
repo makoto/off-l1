@@ -244,7 +244,13 @@ function App({chainInfos}) {
             <About />
           </Route>
           <Route path="/user/:account">
-            <User />
+            <User
+              pancakeData={pancakeData}
+              honeyData={honeyData}
+              quickData={quickData}
+              chainInfos={chainInfos}
+              connextNode={node}
+            />
           </Route>
           <Route path="/">
             <Home chainInfos={chainInfos} combined={combined} />

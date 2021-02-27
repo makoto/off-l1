@@ -88,6 +88,28 @@ export const verifyRouterCapacityForTransfer = async (
   })
 };
 
+export const getChannelForChain = async (chainId, node) => {
+  return await node.getStateChannelByParticipants({
+    chainId: chainId,
+    counterparty: routerPublicIdentifier,
+  });
+}
+
+export const withdraw = async(node, assetId, amount, channelAddress, recipient) => {
+  // console.log('**** withdraw', {
+  //   assetId,
+  //   amount,
+  //   channelAddress,
+  //   recipient
+  // })
+  return await node.withdraw({
+    assetId,
+    amount,
+    channelAddress,
+    recipient
+  })
+}
+
 export const getChannelsForChains = async (fromChainId, toChainId, node) => {
   let fromChannelRes = await node.getStateChannelByParticipants({
     chainId: fromChainId,

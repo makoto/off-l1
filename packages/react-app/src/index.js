@@ -19,6 +19,10 @@ const bscClient = new ApolloClient({
   // uri: "https://info.burgerswap.org/subgraphs/name/burgerswap/platform"
 });
 
+const bitQueryClient = new ApolloClient({
+  uri: "https://graphql.bitquery.io"
+})
+
 const maticClient = new ApolloClient({
   // uri: "https://graph01.ginete.in/subgraphs/name/matic/quickswap"
   uri: "https://api.thegraph.com/subgraphs/name/sameepsi/quickswap"
@@ -33,6 +37,7 @@ const chainInfos = [{
   chainIcon: bsc,
   name:'BSC',
   client:bscClient,
+  bitQueryClient,
   tokenSymbol:'BNB',
   tokenAddress:'0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
   exchangeName:'Pancake',
