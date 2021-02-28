@@ -6,7 +6,7 @@
 
 - [Explainer video](https://www.youtube.com/watch?v=LELEh4aOzM4&)
 - [Slide](https://speakerdeck.com/makoto_inoue/off-l1)
-- [Demo site](http://offl1.surge.sh)
+- [Demo site](http://surge.xyz)
 
 ## How to set up
 
