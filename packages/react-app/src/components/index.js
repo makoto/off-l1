@@ -46,7 +46,7 @@ export const Body = styled.body`
 
 export const Image = styled.img`
   height: 40vmin;
-  margin-bottom: 16px;
+  margin: 16px;
   pointer-events: none;
 `;
 
@@ -90,6 +90,10 @@ export const NetworkContainer = styled.span`
   display: flex;
   vertical-align: center;
   align-items: center;
+  a{
+    color: #5E4C5A;
+    margin: 0 5px;
+  }
 `
 
 export const Input = styled.input`

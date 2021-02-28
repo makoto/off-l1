@@ -9,7 +9,7 @@ import Home from "./components/Home";
 import Token from "./components/Token";
 import Swap from "./components/Swap";
 import User from "./components/User";
-import logo from "./ethereumLogo.png";
+import About from "./components/About";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { getBalance, getProvider, getTokenBalance,  getBNB, getEth, getDai } from "./utils"
 import pancakeData from './data/pancake.json'
@@ -41,10 +41,6 @@ function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
       {!provider ? "Connect Wallet" : "Disconnect Wallet"}
     </Button>
   );
-}
-
-function About() {
-  return <h2>About</h2>;
 }
 
 function App({chainInfos}) {
@@ -204,13 +200,14 @@ function App({chainInfos}) {
             🐰
           </Link>
           <NetworkContainer>
+            <>
+            <Link to='/about' >About</Link>
             {chainId && (
               (currentChain) ? (
                 <div>
                   Connected to {currentChain.name} as
                   <Link
                     to={`/user/${userName || account}`}
-                    style={{margin:'0 5px', color:'#5E4C5A'}}
                   >
                   { userName || `${account?.slice(0, 5)}...` }
                   </Link> (
@@ -223,6 +220,7 @@ function App({chainInfos}) {
               loadWeb3Modal={loadWeb3Modal}
               logoutOfWeb3Modal={logoutOfWeb3Modal}
             />
+            </>
           </NetworkContainer>
         </Header>
         <Switch>

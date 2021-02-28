@@ -26,7 +26,21 @@ yarn start
 
 ## TODO
 
-- 
+### Short term
+
+- Add withdraw from helper
+- Add xDAI - DAI token mapping
+- Use USDC as base price (to replace out of sync Pancake subgraph)
+- Allow user to switch base currency
+- Support Multi paths (eg: USDC-> BNB ->UNI)
+- Add historical quotes for each pair
+
+### Mid-longer term
+
+- Send back the swapped token back to original chain.
+- Split quote into muliple smaller trades across chains
+- Turn it into bot
+- Investigate the possibility of forming a pooled fund for profit sharing
 
 ## Credits
 

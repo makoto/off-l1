@@ -203,6 +203,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     </Note>
                     Swap limit: {displayNumber(routerOnchainBalance)} ${symbol} on {fromExchange.name}
                     ({displayNumber(routerOnchainBalance - quote[1].formatted )})
+                    <Note style={{color:'orange', fontSize:'large'}}>This is a demo dapp. Read <InternalLink to='/about' >Risk and limitation</InternalLink> before you interact</Note>
                     <ActionContainer>
                       {
                         currentChain?.name === fromExchange?.name ? (
