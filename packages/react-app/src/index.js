@@ -42,7 +42,7 @@ const chainInfos = [{
   tokenAddress:'0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
   exchangeName:'Pancake',
   exchangeIcon: pancake,
-
+  instructionGuide:'https://academy.binance.com/en/articles/connecting-metamask-to-binance-smart-chain',
   explorerUrl:'https://bscscan.com',
   exchangeRouterAddress:'0x05ff2b0db69458a0750badebc4f9e13add608c7f',
   rpcUrl: 'https://bsc-dataseed1.defibit.io'
@@ -55,6 +55,7 @@ const chainInfos = [{
   tokenAddress:'0x7d1afa7b718fb893db30a3abc0cfc608aacfebb0',
   exchangeName:'Quick',
   exchangeIcon:quick,
+  instructionGuide:'https://docs.matic.network/docs/develop/metamask/config-matic',
   exchangeRouterAddress:'0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff',
   explorerUrl:'https://explorer-mainnet.maticvigil.com',
   rpcUrl: 'https://rpc-mainnet.matic.network'
@@ -67,6 +68,7 @@ const chainInfos = [{
   tokenAddress:'0x6b175474e89094c44da98b954eedeac495271d0f',
   exchangeName:'Honey',
   exchangeIcon:honey,
+  instructionGuide:'https://www.xdaichain.com/for-users/wallets/metamask/metamask-setup',
   exchangeRouterAddress:'0x1C232F01118CB8B424793ae03F870aa7D0ac7f77',
   explorerUrl:'https://blockscout.com/poa/xdai',
   rpcUrl:'https://xdai.poanetwork.dev'

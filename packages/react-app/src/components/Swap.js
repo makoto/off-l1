@@ -124,6 +124,11 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
     percentage = totalDiff / amount * 100
   }
 
+  const isReadyToSwap = currentChain?.name === fromExchange?.name
+    && (parseFloat(fromTokenBalance) - amount > 0)
+    && (routerOnchainBalance - quote[1].formatted) > 1
+
+  console.log('****', {chainId , fromToken , toToken, isReadyToSwap})
   return (
     <Body>
       <h3>
@@ -155,9 +160,13 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
             <li>
               <BlinkingValue value={displayNumber(toTokenPairBalance)}/> ${fromSymbol} on {toExchange.name}
             </li>
-
           </ul>
-          {(fromTokenBalance && toTokenBalance && toChannel && toToken) && (
+        </>
+      )}
+      <>
+      {fromToken && toToken && (
+        <>
+          {toToken && toChannel ? (
             <>
               Type the amount you want to swap
               <Input
@@ -172,7 +181,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     number}
                   );
                   setAmount(number)
-                  if (number > 0) {
+                  if (toChannel && number > 0) {
                     getQuote(fromExchange, toExchange, fromToken, fromTokenPair, toToken, toTokenPair, number).then(c => {
                       console.log('***getQuote3', {c})
                       setQuote(c)
@@ -203,7 +212,9 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                     </Note>
                     Swap limit: {displayNumber(routerOnchainBalance)} ${symbol} on {fromExchange.name}
                     ({displayNumber(routerOnchainBalance - quote[1].formatted )})
-                    <Note style={{color:'orange', fontSize:'large'}}>This is a demo dapp. Read <InternalLink to='/about' >Risk and limitation</InternalLink> before you interact</Note>
+                    { isReadyToSwap && (
+                      <Note style={{color:'orange', fontSize:'large'}}>This is a demo dapp. Read <InternalLink to='/about' >Risk and limitation</InternalLink> before you interact</Note>
+                    )}
                     <ActionContainer>
                       {
                         currentChain?.name === fromExchange?.name ? (
@@ -262,7 +273,10 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                             <Note>Not enough ${fromSymbol} on {fromExchange.name} to Continue </Note>  
                           )
                         ) : (
-                          <Note>Please connect to {fromExchange?.name} network and refresh the page </Note>
+                          <>
+                            <Note>Please connect to {fromExchange?.name} network and refresh the page </Note>
+                            <Note style={{fontSize:'large', textAlign:'center'}}>(<Link href={fromExchange.instructionGuide}>Guide:How to add the network to Metamask</Link>)</Note>
+                          </>
                         )
                       }
                     </ActionContainer>
@@ -286,9 +300,10 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                 )
               }
             </>
-          ) }
+          ) : 'Loading...' }
         </>
       )}
+      </>
     </Body>
   );
 }
