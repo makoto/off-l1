@@ -8,6 +8,7 @@ import { ethers } from "ethers";
 import { swap, getRouterBalances, getChannelsForChains, verifyRouterCapacityForTransfer } from '../connext'
 import BlinkingValue from './BlinkingValue'
 import moment from 'moment'
+import _ from 'lodash';
 
 export const SwapLinkContainer = styled.span`
   margin-right: 1em;
@@ -20,7 +21,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
   const [toTokenPairBalance, setToTokenPairBalance] = useState(false);
   const [amount, setAmount] = useState(false);
   const [quote, setQuote] = useState(false);
-  const [log, setLog] = useState(false);
+  const [log, setLog] = useState([]);
   const { from, to, symbol } = useParams();
   const [preTransferFromBalance, setPreTransferFromBalance] = useState(false);
   const [postTransferFromBalance, setPostTransferFromBalance] = useState(false);
@@ -35,8 +36,13 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
   const [toChannel, setToChannel] = useState(false);
   const [routerOnchainBalance, setRouterOnchainBalance] = useState(false);
 
+  function setLogHandler(msg, option= {}){
+    let obj = {...option,msg}
+    setLog(_log => [..._log, [msg, option.tx, option.chainId]]) 
+  }
+
   useEffect(() => {
-    if(log){
+    if(log.length > 0){
       getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
         setFromTokenBalance(b);
       });
@@ -59,7 +65,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
       }).then(b => {
         console.log('***getRouterBalances0', b)
       })
-      if(log.match('7/7')){
+      if(_.last(log)[0]?.match('7/7')){
         getTokenBalance(fromExchange.rpcUrl, fromToken, account).then((b) => {
           setPostTransferFromBalance(b);
         });
@@ -123,10 +129,10 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
     totalDiff = transferFromDiff + transferToDiff
     percentage = totalDiff / amount * 100
   }
-
+  const firstQuote = quote[1]
   const isReadyToSwap = currentChain?.name === fromExchange?.name
     && (parseFloat(fromTokenBalance) - amount > 0)
-    && (routerOnchainBalance - quote[1].formatted) > 1
+    && (routerOnchainBalance - firstQuote?.formatted) > 1
 
   console.log('****', {chainId , fromToken , toToken, isReadyToSwap})
   return (
@@ -256,7 +262,7 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                                         toExchange.chainId,
                                         connextNode,
                                         provider,
-                                        setLog
+                                        setLogHandler
                                       )
                                       setTransferComplete(false)
                                       setStartTime(moment())
@@ -280,10 +286,25 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
                         )
                       }
                     </ActionContainer>
-                    {log && (
+                    {log.length > 0 && (
                       <div>
                         <Note style={{color:'orange'}}>Do not refresh this page!!!</Note>
-                        Current status: <BlinkingValue value={log} />
+                        <ul>
+                          {
+                            log.map(([msg, tx, chainId]) => {
+                              let c = chainInfos.filter(c => c.chainId === chainId )[0]
+                              console.log('****setLog', {c, chainId, chainInfos})
+                              return (<li>
+                                <BlinkingValue value={msg} />
+                                {
+                                  tx && (
+                                    <Link href={`${c?.explorerUrl}/tx/${tx}`}>{tx.slice(0,5)}...</Link>
+                                  )
+                                }
+                              </li>)
+                            })
+                          }
+                        </ul>
                         {transferComplete && (
                           <ul>
                             <li>Time spent: {endTime.diff(startTime, 'second')} seconds</li>

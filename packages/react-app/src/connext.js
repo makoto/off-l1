@@ -203,6 +203,7 @@ export const swap = async (
   console.log('***swap1')
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
+  setLog(`(0/7) Starting`);
   console.log(`Starting swap: `, {
     swapAmount,
     fromToken,
@@ -233,11 +234,11 @@ export const swap = async (
       ERC20Abi,
       provider.getSigner()
     );
-    setLog(`(1/7) Starting swap`);
     const tx = await fromTokenContract.transfer(
       fromChannel.channelAddress,
       swapAmount
     );
+    setLog(`(1/7) Starting swap`, {tx:tx.hash, chainId:fromChainId});
     console.log('***swap5')
     console.log("Sent approval tx, waiting for confirmation: ", tx);
     const receipt = await tx.wait();
@@ -247,6 +248,7 @@ export const swap = async (
       channelAddress: fromChannel.channelAddress,
       assetId: fromToken,
     });
+    console.log('*****swap5.1', {depositRes})
     if (depositRes.isError) {
       throw depositRes.getError();
     }
@@ -285,8 +287,10 @@ export const swap = async (
   }
   console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
   // make sure tx is sent
+  let fromSwapWithdrawTx =  .getValue().transactionHash
+  setLog(`(3/7) Swapping`, {tx:fromSwapWithdrawTx, chainId:fromChainId});
   let receipt = await chainJsonProviders[fromChainId].waitForTransaction(
-    fromSwapWithdraw.getValue().transactionHash
+    fromSwapWithdrawTx
   );
   console.log("fromSwapWithdraw receipt: ", receipt);
 
@@ -300,6 +304,7 @@ export const swap = async (
     throw fromSwapDepositRes.getError();
   }
   console.log(`Deposit complete: `, fromSwapDepositRes.getValue());
+  
   let channelStateRes = await node.getStateChannel({
     channelAddress: fromChannel.channelAddress,
   });
@@ -407,7 +412,6 @@ export const swap = async (
     toSwapDataOption
   );
   console.log("toSwapData: ", toSwapData);
-  setLog("(6/7) Swapping");
   const toSwapWithdraw = await node.withdraw({
     assetId: toToken,
     amount: postCrossChainTransferBalance,
@@ -422,8 +426,10 @@ export const swap = async (
   console.log(`To swap withdraw complete: `, toSwapWithdraw.getValue());
 
   // make sure tx is sent
+  let toSwapWithdrawHash = toSwapWithdraw.getValue().transactionHash
+  setLog("(6/7) Swapping", {hash:toSwapWithdrawHash, chainId:toChainId});
   receipt = await chainJsonProviders[toChainId].waitForTransaction(
-    toSwapWithdraw.getValue().transactionHash
+    toSwapWithdrawHash
   );
   console.log("toSwapWithdraw receipt: ", receipt);
 
