@@ -287,7 +287,7 @@ export const swap = async (
   }
   console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
   // make sure tx is sent
-  let fromSwapWithdrawTx =  .getValue().transactionHash
+  let fromSwapWithdrawTx = fromSwapWithdraw.getValue().transactionHash
   setLog(`(3/7) Swapping`, {tx:fromSwapWithdrawTx, chainId:fromChainId});
   let receipt = await chainJsonProviders[fromChainId].waitForTransaction(
     fromSwapWithdrawTx
