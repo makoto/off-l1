@@ -18,11 +18,11 @@ export default function(props) {
       }}
       syncId="anyId"
     >
+      <Legend verticalAlign="top"/>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis dataKey={xKey} tick={{fill: 'white', strokeWidth: 1}} />
       <YAxis domain={['auto', 'auto']}/>
       <Tooltip />
-      <Legend />
       {
         yKeys && yKeys[0] === 'pctDiff' && (
           <ReferenceLine y={0} stroke="red" />

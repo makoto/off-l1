@@ -145,7 +145,8 @@ function Swap({ chainId, chainInfos, combined, currentChain, account, connextNod
         <IconImage src={toExchange.chainIcon} />${symbol} x $USDC<IconImage src={toExchange.exchangeIcon} />
       </h3>
       <Note style={{fontSize:'small'}}>
-        <InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`} >(Switch Direction)</InternalLink>
+        (<InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`} >Switch Direction</InternalLink> |
+        <InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`} >Info</InternalLink>)
       </Note>
       {chainId && fromToken && toToken && (
         <>

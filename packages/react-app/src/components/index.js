@@ -116,3 +116,7 @@ export const Label = styled.span`
   border-radius: 0.35rem;
   ${props =>  `background-color:${props.color}`  }
 `
+
+export const ChartContainer = styled.div`
+  margin: 1em;
+`

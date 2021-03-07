@@ -18,42 +18,24 @@ export const SwapLinkContainer = styled.span`
   margin-right: 1em;
 `;
 
-function parseData(data, key){
-  return (data && data.tokenDayDatas && data.tokenDayDatas.map(d => {
+function parseData(data, label){
+  let dict = {}
+  data && data.tokenDayDatas && data.tokenDayDatas.map(d => {
+    let key = moment(parseInt(d.date) * 1000).format("MMM Do kk:mm:ss")
     let r = {
-      date: moment(parseInt(d.date) * 1000).format("MMM Do kk:mm:ss")
+      // date: moment(parseInt(d.date) * 1000).format("MMM Do kk:mm:ss")
+      date: d.date
     }
-    r[`${key}Volume`] = parseInt(d.dailyVolumeUSD)
-    r[`${key}Liquidity`] = parseInt(d.totalLiquidityUSD)
-    r[`${key}Price`] = parseFloat(d.priceUSD)
-    return r
-  })) || []
+    r[`${label}Volume`] = parseInt(d.dailyVolumeUSD)
+    r[`${label}Liquidity`] = parseInt(d.totalLiquidityUSD)
+    r[`${label}Price`] = parseFloat(d.priceUSD)
+    dict[key] = r
+  })
+  return dict
 }
 
 function Info({ chainId, chainInfos, combined, currentChain, account, connextNode, provider }) {
-  const [fromTokenBalance, setFromTokenBalance] = useState(false);
-  const [fromTokenPairBalance, setFromTokenPairBalance] = useState(false);
-  const [toTokenBalance, setToTokenBalance] = useState(false);
-  const [toTokenPairBalance, setToTokenPairBalance] = useState(false);
-  const [amount, setAmount] = useState(false);
-  const [quote, setQuote] = useState(false);
-  const [log, setLog] = useState([]);
   const { from, to, symbol } = useParams();
-  const [preTransferFromBalance, setPreTransferFromBalance] = useState(false);
-  const [postTransferFromBalance, setPostTransferFromBalance] = useState(false);
-  const [preTransferToBalance, setPreTransferToBalance] = useState(false);
-  const [postTransferToBalance, setPostTransferToBalance] = useState(false);
-  const [preTransferBalance, setPreTransferBalance] = useState(false);
-  const [postTransferBalance, postPreTransferBalance] = useState(false);
-  const [transferComplete, setTransferComplete] = useState(false);
-  const [startTime, setStartTime] = useState(false);
-  const [endTime, setEndTime] = useState(false);
-  const [fromChannel, setFromChannel] = useState(false);
-  const [toChannel, setToChannel] = useState(false);
-  const [routerOnchainBalance, setRouterOnchainBalance] = useState(false);
-
-  useEffect(() => {
-  }, []);
 
   const fromExchange = chainInfos.filter((c) => c.exchangeName === from)[0];
   const toExchange = chainInfos.filter((c) => c.exchangeName === to)[0];
@@ -68,9 +50,6 @@ function Info({ chainId, chainInfos, combined, currentChain, account, connextNod
     toToken = toTokenData.data?.filter((d) => d?.exchangeName === to)[0];
     toTokenPair = fromTokenData.data?.filter((d) => d?.exchangeName === to)[0];
   }
-  // if(combined){
-  //   debugger
-  // }
   console.log('******', {
     fromToken, fromTokenPair, toToken, toTokenPair
   })
@@ -93,42 +72,45 @@ function Info({ chainId, chainInfos, combined, currentChain, account, connextNod
   let historyData = [], historyData1, historyData2, num
   historyData1 = parseData(fromData, fromTokenPair?.exchangeName)
   historyData2 = parseData(toData, toToken?.exchangeName)
-  console.log('***history', {fromTokenPair, toToken, historyData, historyData1, historyData2})
-  if( historyData1?.length > 0 || historyData2?.length > 0){
-    let totalLength
-    if(historyData2?.length > historyData1?.length ){
-      totalLength = historyData2?.length
-    }else{
-      totalLength = historyData1?.length
+  const dateUnion = _.union(Object.values(historyData1).map(d => d.date), Object.values(historyData2).map(d => d.date)).sort()
+  window.historyData1 = historyData1
+  window.historyData2 = historyData2
+  window.dateUnion = dateUnion
+  console.log('***history', {dateUnion, fromTokenPair, toToken, historyData, historyData1, historyData2})
+  for (let index = 0; index < dateUnion.length; index++) {
+    const element = dateUnion[index];
+    const key = moment(element * 1000).format("MMM Do kk:mm:ss")
+    const d2 = historyData2[key]
+    const d1 = historyData1[key]
+    let pctDiff, d1Price, d2Price
+    if (d1 && d2){
+      const diff = (d1[`${fromTokenPair?.exchangeName}Price`] - d2[`${toToken?.exchangeName}Price`])
+      const mid = (d1[`${fromTokenPair?.exchangeName}Price`] + d2[`${toToken?.exchangeName}Price`]) / 2
+      pctDiff =  diff / mid * 100
+      if(pctDiff > 30) pctDiff = 30
+      if(pctDiff < -30) pctDiff = -30
     }
-    for (let index = 0; index < totalLength; index++) {
-      const d2 = historyData2[index] || {};
-      const d1 = historyData1[index] || {};
-      let pctDiff
-      if (d1 && d2){
-        // debugger
-
-        const diff = (d1[`${fromTokenPair?.exchangeName}Price`] - d2[`${toToken?.exchangeName}Price`])
-        const mid = (d1[`${fromTokenPair?.exchangeName}Price`] + d2[`${toToken?.exchangeName}Price`]) / 2
-        pctDiff =  diff / mid * 100
-        if(pctDiff > 30) pctDiff = 30
-        if(pctDiff < -30) pctDiff = -30
-      }
-      historyData[index] = {
-        ...d2, ...d1, ...{pctDiff}
-      }
+    if(d1){
+      d1Price = d1[`${fromTokenPair?.exchangeName}Price`]?.toFixed(3)
+    }
+    if(d2){
+      d2Price = d2[`${toToken?.exchangeName}Price`]?.toFixed(3)
+    }
+    historyData[index] = {
+      ...d2, ...d1, ...{
+        [`${fromTokenPair?.exchangeName}Price`]:d1Price,
+        [`${toToken?.exchangeName}Price`]:d2Price,
+        pctDiff,
+        date:key, d1date:d1?.date, d2date:d2?.date}
     }
   }
-  historyData = historyData.reverse()
-  num = historyData.length
   console.log('***his', {historyData, num})
   return(
     <>
       <Body>
         <Title>
+          <IconImage src={fromExchange.chainIcon} />${symbol}
           <IconImage src={fromExchange.exchangeIcon} />
-            <IconImage src={fromExchange.chainIcon} />${symbol}
-          <IconImage src={fromExchange.chainIcon} />
             ->
             <IconImage src={toExchange.chainIcon} />${symbol}<IconImage src={toExchange.exchangeIcon} />
         </Title>
@@ -136,7 +118,8 @@ function Info({ chainId, chainInfos, combined, currentChain, account, connextNod
           historyData1.length === 0 && historyData2.length === 0 ? ('Loading...') : (
             <>
               <Note style={{fontSize:'small', margin:'1em'}}>
-                <InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`} >(Switch Direction)</InternalLink>
+                (<InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`} >Switch Direction</InternalLink> |
+                <InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`} >Swap</InternalLink>)
               </Note>
               {historyData2?.length === 0 && ('(Mainnet data not available)')}
                 <Chart data={historyData } xKey={'date'} yKeys={[`${fromTokenPair?.exchangeName}Price`, `${toToken?.exchangeName}Price`]} />
