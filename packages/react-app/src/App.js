@@ -8,6 +8,7 @@ import { Body, Button, Header, NetworkContainer } from "./components";
 import Home from "./components/Home";
 import Token from "./components/Token";
 import Swap from "./components/Swap";
+import Info from "./components/Info";
 import User from "./components/User";
 import About from "./components/About";
 import useWeb3Modal from "./hooks/useWeb3Modal";
@@ -229,6 +230,17 @@ function App({chainInfos}) {
           </Route>
           <Route path="/exchanges/:from-:to/token/:symbol">
             <Swap
+              chainId={chainId}
+              chainInfos={chainInfos}
+              currentChain={currentChain}
+              combined={combined}
+              account={account}
+              connextNode={node}
+              provider={provider}
+            />
+          </Route>
+          <Route path="/exchanges/:from-:to/tokeninfo/:symbol">
+            <Info
               chainId={chainId}
               chainInfos={chainInfos}
               currentChain={currentChain}

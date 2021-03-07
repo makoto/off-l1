@@ -54,3 +54,25 @@ h4{
 .messageout-exit-active {
   opacity: 0;
 }
+
+
+.recharts-cartesian-axis-tick {    
+  font-size: 1rem;
+  font-family: Roboto, sans-serif;
+  text{
+    fill:white;
+  }
+}
+.recharts-legend-item-text{
+  font-size:1rem;
+}
+
+.recharts-tooltip-wrapper {
+  font-size: 1rem;
+  color:black;
+  .customTooltip {
+    p {
+      margin:0;
+    }
+  }
+}

@@ -71,3 +71,18 @@ export const BSC_TOKEN_BALANCES = gql`
     }
   }
 `
+
+
+export const GET_HOUR_DATA = gql`
+  query tokenDayDatas($tokenId: String!){
+    tokenDayDatas(first: 100, orderBy: date, orderDirection: desc, where: { token: $tokenId}) {
+      id
+      date
+      token
+      { id symbol }
+      priceUSD
+      dailyVolumeUSD
+      totalLiquidityUSD
+    }
+  }
+`;

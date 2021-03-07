@@ -96,12 +96,12 @@ export const getChannelForChain = async (chainId, node) => {
 }
 
 export const withdraw = async(node, assetId, amount, channelAddress, recipient) => {
-  // console.log('**** withdraw', {
-  //   assetId,
-  //   amount,
-  //   channelAddress,
-  //   recipient
-  // })
+  console.log('**** withdraw', {
+    assetId,
+    amount,
+    channelAddress,
+    recipient
+  })
   return await node.withdraw({
     assetId,
     amount,

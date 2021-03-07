@@ -16,9 +16,9 @@
   },
   "dependencies": {
     "@apollo/react-hooks": "^3.1.5",
-    "@connext/vector-browser-node": "^0.2.0-beta.5",
-    "@connext/vector-types": "^0.2.0-beta.5",
-    "@connext/vector-utils": "^0.2.0-beta.5",
+    "@connext/vector-browser-node": "^0.2.0-beta.6",
+    "@connext/vector-types": "^0.2.0-beta.6",
+    "@connext/vector-utils": "^0.2.0-beta.6",
     "@connext/vector-withdraw-helpers": "^0.0.1",
     "@ethersproject/bignumber": "^5.0.14",
     "@ethersproject/contracts": "^5.0.5",
@@ -51,6 +51,7 @@
     "react-router-dom": "^5.2.0",
     "react-scripts": "3.4.3",
     "react-transition-group": "^4.4.1",
+    "recharts": "^2.0.8",
     "styled-components": "^5.2.0",
     "web3modal": "^1.9.3"
   },

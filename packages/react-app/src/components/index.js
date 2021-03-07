@@ -33,6 +33,10 @@ export const Header = styled.header`
   color: #5E4C59;
 `;
 
+export const Title = styled.h3`
+  margin:1em;
+`
+
 export const Body = styled.body`
   align-items: center;
   background-color: #5E4C5A;
