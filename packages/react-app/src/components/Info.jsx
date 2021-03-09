@@ -57,34 +57,10 @@ function parseData(data, key) {
 }
 
 function Info({
-  chainId,
   chainInfos,
   combined,
-  currentChain,
-  account,
-  connextNode,
-  provider,
 }) {
-  const [fromTokenBalance, setFromTokenBalance] = useState(false);
-  const [fromTokenPairBalance, setFromTokenPairBalance] = useState(false);
-  const [toTokenBalance, setToTokenBalance] = useState(false);
-  const [toTokenPairBalance, setToTokenPairBalance] = useState(false);
-  const [amount, setAmount] = useState(false);
-  const [quote, setQuote] = useState(false);
-  const [log, setLog] = useState([]);
   const { from, to, symbol } = useParams();
-  const [preTransferFromBalance, setPreTransferFromBalance] = useState(false);
-  const [postTransferFromBalance, setPostTransferFromBalance] = useState(false);
-  const [preTransferToBalance, setPreTransferToBalance] = useState(false);
-  const [postTransferToBalance, setPostTransferToBalance] = useState(false);
-  const [preTransferBalance, setPreTransferBalance] = useState(false);
-  const [postTransferBalance, postPreTransferBalance] = useState(false);
-  const [transferComplete, setTransferComplete] = useState(false);
-  const [startTime, setStartTime] = useState(false);
-  const [endTime, setEndTime] = useState(false);
-  const [fromChannel, setFromChannel] = useState(false);
-  const [toChannel, setToChannel] = useState(false);
-  const [routerOnchainBalance, setRouterOnchainBalance] = useState(false);
 
   useEffect(() => {}, []);
 
@@ -109,9 +85,6 @@ function Info({
     toToken = toTokenData.data?.filter((d) => d?.exchangeName === to)[0];
     toTokenPair = fromTokenData.data?.filter((d) => d?.exchangeName === to)[0];
   }
-  // if(combined){
-  //   debugger
-  // }
   console.log("******", {
     fromToken,
     fromTokenPair,
@@ -197,9 +170,16 @@ function Info({
         ) : (
           <>
             <Note style={{ fontSize: "small", margin: "1em" }}>
-              <InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`}>
-                (Switch Direction)
-              </InternalLink>
+              (
+                <InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`}>
+                  Switch Direction
+                </InternalLink>
+                |
+                <InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`}>
+                  Swap
+                </InternalLink>
+              )
+
             </Note>
             {historyData2?.length === 0 && "(Mainnet data not available)"}
             <Chart

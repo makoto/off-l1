@@ -189,9 +189,16 @@ function Swap({
         <IconImage src={toExchange.exchangeIcon} />
       </h3>
       <Note style={{ fontSize: "small" }}>
+        (
         <InternalLink to={`/exchanges/${to}-${from}/token/${symbol}`}>
-          (Switch Direction)
+          Switch Direction
         </InternalLink>
+        |
+        <InternalLink to={`/exchanges/${to}-${from}/tokeninfo/${symbol}`}>
+          Info
+        </InternalLink>
+        )
+
       </Note>
       {chainId && fromToken && toToken && (
         <>
