@@ -1,36 +1,41 @@
 import { BrowserNode } from "@connext/vector-browser-node";
-import { ERC20Abi, TransferNames } from "@connext/vector-types";
-import { Contract, utils, constants, ethers } from "ethers"
+import {
+  ConditionalTransferCreatedPayload,
+  ERC20Abi,
+  FullChannelState,
+  TransferNames,
+} from "@connext/vector-types";
+import { Contract, utils, constants, ethers, providers } from "ethers";
 
 import UniswapWithdrawHelper from "@connext/vector-withdraw-helpers/artifacts/contracts/UniswapWithdrawHelper/UniswapWithdrawHelper.sol/UniswapWithdrawHelper.json";
 import { JsonRpcProvider } from "@ethersproject/providers";
-import { getBalanceForAssetId, calculateExchangeAmount, getRandomBytes32 } from "@connext/vector-utils";
+import { getBalanceForAssetId, getRandomBytes32 } from "@connext/vector-utils";
 
 import { BigNumber } from "@ethersproject/bignumber";
 
 const routerPublicIdentifier =
   "vector892GMZ3CuUkpyW8eeXfW2bt5W73TWEXtgV71nphXUXAmpncnj8";
 
-const withdrawHelpers = {
+const withdrawHelpers: { [chainId: number]: string } = {
   137: "0xD1CC3E4b9c6d0cb0B9B97AEde44d4908FF0be507",
   56: "0xad654314d3F6590243602D14b4089332EBb5227D",
   100: "0xe12639c8C458f719146286f8B8b7050176577a62",
 };
 
-const chainProviders = {
-  "56": "https://bsc-dataseed.binance.org/",
-  "100": "https://rpc.xdaichain.com/",
-  "137": "https://rpc-mainnet.matic.network",
+const chainProviders: { [chainId: number]: string } = {
+  56: "https://bsc-dataseed.binance.org/",
+  100: "https://rpc.xdaichain.com/",
+  137: "https://rpc-mainnet.matic.network",
 };
 
-const chainJsonProviders = {
-  "56": new JsonRpcProvider("https://bsc-dataseed.binance.org/"),
-  "100": new JsonRpcProvider("https://rpc.xdaichain.com/"),
-  "137": new JsonRpcProvider("https://rpc-mainnet.matic.network"),
+const chainJsonProviders: { [chainId: number]: providers.JsonRpcProvider } = {
+  56: new JsonRpcProvider("https://bsc-dataseed.binance.org/"),
+  100: new JsonRpcProvider("https://rpc.xdaichain.com/"),
+  137: new JsonRpcProvider("https://rpc-mainnet.matic.network"),
 };
 
 // TODO: FILL IN ADDRESSES
-const uniswapRouters = {
+const uniswapRouters: { [chainId: number]: string } = {
   137: "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff",
   56: "0x05ff2b0db69458a0750badebc4f9e13add608c7f",
   100: "0x1C232F01118CB8B424793ae03F870aa7D0ac7f77",
@@ -47,13 +52,12 @@ export const initNode = async () => {
 };
 
 export const getOnchainBalance = async (
-  ethProvider,
-  assetId,
-  address
+  ethProvider: any,
+  assetId: string,
+  address: any
 ) => {
-  
-  window.constants = constants
-  window.Contract = Contract
+  (window as any).constants = constants;
+  (window as any).Contract = Contract;
   const balance =
     assetId === constants.AddressZero
       ? await ethProvider.getBalance(address)
@@ -62,55 +66,100 @@ export const getOnchainBalance = async (
 };
 
 export const verifyRouterCapacityForTransfer = async (
-  ethProvider,
-  toToken,
-  withdrawChannel,
-  transferAmount,
-  swap
+  ethProvider: JsonRpcProvider,
+  toToken: {
+    id: any;
+    decimals: string | number | ethers.BigNumber | utils.Bytes;
+  },
+  withdrawChannel: FullChannelState,
+  transferAmount: any,
+  swap: { hardcodedRate: number }
 ) => {
-  const toAssetId = toToken.id
+  const toAssetId = toToken.id;
   console.log(`verifyRouterCapacityForTransfer for ${transferAmount}`, {
     toAssetId,
-    withdrawChannel
+    withdrawChannel,
   });
   const routerOnchain = await getOnchainBalance(
     ethProvider,
     toAssetId,
     withdrawChannel.alice
   );
-  console.log(`verifyRouterCapacityForTransfer2`,{routerOnchain});
+  console.log(`verifyRouterCapacityForTransfer2`, { routerOnchain });
   const routerOffchain = BigNumber.from(
-    getBalanceForAssetId(withdrawChannel, toAssetId, 'bob')
+    getBalanceForAssetId(withdrawChannel, toAssetId, "bob")
   );
-  return({
-    routerOnchainBalance: ethers.utils.formatUnits(routerOnchain, toToken.decimals),
-    routerOffchainBalacne: ethers.utils.formatUnits(routerOffchain, toToken.decimals)
-  })
+  return {
+    routerOnchainBalance: ethers.utils.formatUnits(
+      routerOnchain,
+      toToken.decimals
+    ),
+    routerOffchainBalacne: ethers.utils.formatUnits(
+      routerOffchain,
+      toToken.decimals
+    ),
+  };
 };
 
-export const getChannelForChain = async (chainId, node) => {
+export const getChannelForChain = async (
+  chainId: any,
+  node: {
+    getStateChannelByParticipants: (arg0: {
+      chainId: any;
+      counterparty: string;
+    }) => any;
+  }
+) => {
   return await node.getStateChannelByParticipants({
     chainId: chainId,
     counterparty: routerPublicIdentifier,
   });
-}
+};
 
-export const withdraw = async(node, assetId, amount, channelAddress, recipient) => {
-  console.log('**** withdraw', {
+export const withdraw = async (
+  node: {
+    withdraw: (arg0: {
+      assetId: any;
+      amount: any;
+      channelAddress: any;
+      recipient: any;
+    }) => any;
+  },
+  assetId: any,
+  amount: any,
+  channelAddress: any,
+  recipient: boolean
+) => {
+  console.log("**** withdraw", {
     assetId,
     amount,
     channelAddress,
-    recipient
-  })
+    recipient,
+  });
   return await node.withdraw({
     assetId,
     amount,
     channelAddress,
-    recipient
-  })
-}
+    recipient,
+  });
+};
 
-export const getChannelsForChains = async (fromChainId, toChainId, node) => {
+export const getChannelsForChains = async (
+  fromChainId: any,
+  toChainId: any,
+  node: {
+    getStateChannelByParticipants: (arg0: {
+      chainId: any;
+      counterparty: string;
+    }) => any;
+    setup: (arg0: {
+      chainId: any;
+      counterpartyIdentifier: string;
+      timeout: string;
+    }) => any;
+    getStateChannel: (arg0: { channelAddress: any }) => any;
+  }
+) => {
   let fromChannelRes = await node.getStateChannelByParticipants({
     chainId: fromChainId,
     counterparty: routerPublicIdentifier,
@@ -175,32 +224,37 @@ export const getRouterBalances = async ({
   fromToken,
   toToken,
   node,
-}) => {
+}: any) => {
   let { fromChannel, toChannel } = await getChannelsForChains(
     fromChain,
     toChain,
     node
-  ); 
-  const preTransferBalance = getBalanceForAssetId(fromChannel, fromToken, "bob");
-  const postTransferBalance = getBalanceForAssetId(toChannel,toToken,"bob");
-  return ({
-    preTransferBalance, postTransferBalance
-  })
-}
+  );
+  const preTransferBalance = getBalanceForAssetId(
+    fromChannel,
+    fromToken,
+    "bob"
+  );
+  const postTransferBalance = getBalanceForAssetId(toChannel, toToken, "bob");
+  return {
+    preTransferBalance,
+    postTransferBalance,
+  };
+};
 
 export const swap = async (
-  swapAmount,
-  fromToken,
-  fromTokenPair,
-  toToken,
-  toTokenPair,
-  fromChainId,
-  toChainId,
-  node,
-  provider,
-  setLog
+  swapAmount: ethers.BigNumberish,
+  fromToken: string,
+  fromTokenPair: string,
+  toToken: string,
+  toTokenPair: string,
+  fromChainId: number,
+  toChainId: number,
+  node: BrowserNode,
+  provider: providers.JsonRpcProvider,
+  setLog: any
 ) => {
-  console.log('***swap1')
+  console.log("***swap1");
   const signer = await provider.getSigner();
   const signerAddress = await signer.getAddress();
   setLog(`(0/7) Starting`);
@@ -211,7 +265,7 @@ export const swap = async (
     fromChainId,
     toChainId,
   });
-  
+
   let { fromChannel, toChannel } = await getChannelsForChains(
     fromChainId,
     toChainId,
@@ -224,11 +278,11 @@ export const swap = async (
       `Wrong network, expected chainId ${fromChainId}, got ${network.chainId}`
     );
   }
-  console.log('***swap2')
+  console.log("***swap2");
   // // TODO: handle ETH
   const balance = getBalanceForAssetId(fromChannel, fromToken, "bob");
   if (BigNumber.from(balance).lt(swapAmount)) {
-    console.log('***swap3')
+    console.log("***swap3");
     const fromTokenContract = new Contract(
       fromToken,
       ERC20Abi,
@@ -238,8 +292,8 @@ export const swap = async (
       fromChannel.channelAddress,
       swapAmount
     );
-    setLog(`(1/7) Starting swap`, {tx:tx.hash, chainId:fromChainId});
-    console.log('***swap5')
+    setLog(`(1/7) Starting swap`, { tx: tx.hash, chainId: fromChainId });
+    console.log("***swap5");
     console.log("Sent approval tx, waiting for confirmation: ", tx);
     const receipt = await tx.wait();
     console.log("Tx confirmed, receipt: ", receipt);
@@ -248,7 +302,7 @@ export const swap = async (
       channelAddress: fromChannel.channelAddress,
       assetId: fromToken,
     });
-    console.log('*****swap5.1', {depositRes})
+    console.log("*****swap5.1", { depositRes });
     if (depositRes.isError) {
       throw depositRes.getError();
     }
@@ -287,10 +341,10 @@ export const swap = async (
   }
   console.log(`From swap withdraw complete: `, fromSwapWithdraw.getValue());
   // make sure tx is sent
-  let fromSwapWithdrawTx = fromSwapWithdraw.getValue().transactionHash
-  setLog(`(3/7) Swapping`, {tx:fromSwapWithdrawTx, chainId:fromChainId});
+  let fromSwapWithdrawTx = fromSwapWithdraw.getValue().transactionHash;
+  setLog(`(3/7) Swapping`, { tx: fromSwapWithdrawTx, chainId: fromChainId });
   let receipt = await chainJsonProviders[fromChainId].waitForTransaction(
-    fromSwapWithdrawTx
+    fromSwapWithdrawTx!
   );
   console.log("fromSwapWithdraw receipt: ", receipt);
 
@@ -304,7 +358,7 @@ export const swap = async (
     throw fromSwapDepositRes.getError();
   }
   console.log(`Deposit complete: `, fromSwapDepositRes.getValue());
-  
+
   let channelStateRes = await node.getStateChannel({
     channelAddress: fromChannel.channelAddress,
   });
@@ -347,18 +401,26 @@ export const swap = async (
   console.log(
     `Waiting for transfer creation on channel ${toChannel.channelAddress}`
   );
-  const toTransferData = await new Promise((res) => {
-    node.on("CONDITIONAL_TRANSFER_CREATED", (data) => {
-      console.log("CONDITIONAL_TRANSFER_CREATED data: ", { data, toChannel });
-      if (data.channelAddress === toChannel.channelAddress) {
-        res(data);
-      } else {
-        console.log(
-          `Got transfer for ${res.channelAddress}, waiting for ${toChannel.channelAddress}`
-        );
-      }
-    });
-  });
+  const toTransferData = await new Promise<ConditionalTransferCreatedPayload>(
+    (res) => {
+      node.on(
+        "CONDITIONAL_TRANSFER_CREATED",
+        (data: ConditionalTransferCreatedPayload) => {
+          console.log("CONDITIONAL_TRANSFER_CREATED data: ", {
+            data,
+            toChannel,
+          });
+          if (data.channelAddress === toChannel.channelAddress) {
+            res(data);
+          } else {
+            console.log(
+              `Got transfer for ${data.channelAddress}, waiting for ${toChannel.channelAddress}`
+            );
+          }
+        }
+      );
+    }
+  );
 
   // resolve transfer
   const resolveRes = await node.resolveTransfer({
@@ -426,10 +488,10 @@ export const swap = async (
   console.log(`To swap withdraw complete: `, toSwapWithdraw.getValue());
 
   // make sure tx is sent
-  let toSwapWithdrawHash = toSwapWithdraw.getValue().transactionHash
-  setLog("(6/7) Swapping", {hash:toSwapWithdrawHash, chainId:toChainId});
+  let toSwapWithdrawHash = toSwapWithdraw.getValue().transactionHash;
+  setLog("(6/7) Swapping", { hash: toSwapWithdrawHash, chainId: toChainId });
   receipt = await chainJsonProviders[toChainId].waitForTransaction(
-    toSwapWithdrawHash
+    toSwapWithdrawHash!
   );
   console.log("toSwapWithdraw receipt: ", receipt);
 
@@ -465,7 +527,7 @@ export const swap = async (
     throw toWithdraw.getError();
   }
   receipt = await chainJsonProviders[toChainId].waitForTransaction(
-    toWithdraw.getValue().transactionHash
+    toWithdraw.getValue().transactionHash!
   );
 
   setLog("(7/7) 🎉 Transfer Complete");
