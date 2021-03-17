@@ -488,12 +488,20 @@ export const swap = async (
   console.log(`To swap withdraw complete: `, toSwapWithdraw.getValue());
 
   // make sure tx is sent
-  let toSwapWithdrawHash = toSwapWithdraw.getValue().transactionHash;
-  setLog("(6/7) Swapping", { hash: toSwapWithdrawHash, chainId: toChainId });
-  receipt = await chainJsonProviders[toChainId].waitForTransaction(
-    toSwapWithdrawHash!
-  );
-  console.log("toSwapWithdraw receipt: ", receipt);
+  console.log('***toSwapWithdrawHash1')
+  try{
+    let toSwapWithdrawHash = toSwapWithdraw.getValue().transactionHash;
+    console.log('***toSwapWithdrawHash2')
+    setLog("(6/7) Swapping", { hash: toSwapWithdrawHash, chainId: toChainId });
+    console.log('***toSwapWithdrawHash3')
+    receipt = await chainJsonProviders[toChainId].waitForTransaction(
+      toSwapWithdrawHash!
+    );
+    console.log('***toSwapWithdrawHash4')
+    console.log("toSwapWithdraw receipt: ", receipt);  
+  }catch(e){
+    debugger
+  }
 
   // reconcile deposit on toChain
   const toSwapDepositRes = await node.reconcileDeposit({

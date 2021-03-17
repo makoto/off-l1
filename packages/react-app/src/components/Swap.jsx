@@ -67,6 +67,7 @@ function Swap({
 
   function setLogHandler(msg, option = {}) {
     let obj = { ...option, msg };
+    console.log('***setLogHandler', {msg, option})
     setLog((_log) => [..._log, [msg, option.tx, option.chainId]]);
   }
 
@@ -309,12 +310,8 @@ function Swap({
                           routerOnchainBalance - quote[1].formatted > 1 ? (
                             <>
                               <WarningContainer>
-                                {/* <h3>Warning</h3>
-                                <p style={{width:'80%', margin:'1em auto'}}>
-                                This project is submitted for hackathon prototype and not ready for the primte time.
-                                Do not spend more than $1 to try out. It will stop working when it runs out of liquidity on the router.
-                                Learn more at <Link href="https://docs.connext.network/router-basics">Connext website</Link>
-                                </p> */}
+                                {/* Swap button is temporarily disabled due to a bug */}
+
                                 <Button
                                   onClick={(e) => {
                                     // const rawAmount = ethers.utils.parseUnits(amount.toString(), fromToken.decimals)

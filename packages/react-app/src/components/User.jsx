@@ -137,43 +137,46 @@ function User({chainInfos, connextNode, pancakeData, quickData, honeyData, accou
           <h3>Outstanding balance in your channel</h3>
           { Object.entries(channels).map(([key, c]) => {
             let counter = 0
+            let bob = 1
             return (
               <>
-                { c.channel.balances.some(b => b.amount.some(c => c > 0) ) && (
+                { c.channel.balances.some(b => b.amount[bob] > 0 ) && (
                   <>
                     <h4>{key}</h4>
                     <ul>
                     {c.channel.assetIds.map((assetId, i) => {
                       let token = tokenData[c?.channelIndex]?.data?.tokens?.filter(t => t.id === assetId.toLowerCase())[0]
                       let balance = c.channel.balances[i]
-                      return balance.amount.map((a, j) => {
-                        if(parseInt(a) > 0){
-                          let formatted = ethers.utils.formatUnits(a, token.decimals)
-                          counter+=1
-                          return(
-                            <li>
-                              {displayNumber(formatted)} {token.symbol}
-                              <Button
-                                onClick={
-                                  () => {
-                                    withdraw(
-                                      connextNode,
-                                      assetId,
-                                      a,
-                                      c.channel.channelAddress,
-                                      userAddress
-                                    ).then(r => {
-                                      console.log('****response', r)
-                                    })
-                                  }
+                      let a = balance.amount[bob]
+                      if(parseInt(a) > 0){
+                        console.log('***balance found', {
+                          assetId, channel:c.channel
+                        })
+                        let formatted = ethers.utils.formatUnits(a, token.decimals)
+                        counter+=1
+                        return(
+                          <li>
+                            {displayNumber(formatted)} {token.symbol}
+                            <Button
+                              onClick={
+                                () => {
+                                  withdraw(
+                                    connextNode,
+                                    assetId,
+                                    a,
+                                    c.channel.channelAddress,
+                                    userAddress
+                                  ).then(r => {
+                                    console.log('****response', r)
+                                  })
                                 }
-                              >
-                                Withdraw
-                              </Button>
-                            </li>
-                          )
-                        }
-                      })
+                              }
+                            >
+                              Withdraw
+                            </Button>
+                          </li>
+                        )
+                      }
                     })}
                     </ul>
                   </>
